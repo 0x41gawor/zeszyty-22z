@@ -104,3 +104,22 @@ Albo że może przyjść naraz tyko jedno zadanie.
 W systemie z czasem dyskretnym mamy ściśle określone momenty w których coś się może zdazyć, i tylko w nich może coś się zdarzyć
 
 3) zależy tylko od stane anie od przeszłośći - to nazywamy ze jest **bezpamięciowy**
+
+***
+
+**Model sieci komputerowej**
+
+To jest sieć kaskada przejść przez system M/M/1
+
+Wyliczam wszędzie oddzielnie i potem czas oczekiwania to jest suma
+
+co ja muszę założyć jeśli stosuje coś takiego? Proces napływu jest zgodny z poissonem, no więc wyjście też
+
+Robimy założenie i teraz jakie sa konsekwencje tego założenia? Np. to ze w realu to nie jest poisson.
+
+***
+
+**Zastosowanie systemu M/M/1 do wyliczania ...**
+
+Każdą kaskadę można analizować niezależnie.
+
