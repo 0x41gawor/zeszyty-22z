@@ -94,6 +94,12 @@ Warto zauważyć:
 
 - DU + CU + transport + local site + transport + regional site + transport + national site, ale o co tu chodzi mu to ja nie wiem 
 
+local site: UPF
+
+regional site: AMF SMF
+
+national site: reszta
+
 ## RAN Innovations
 
 **MIMO** - Multiple Inputs Multiple Outputs - metoda, dzięki której zwiększa się capacity łącza radiowego. Jak? Używa się wiele anten nadawczych i odbiorczych, aby jak najlepiej wykorzystać zjawisko **multipath propagation**.
@@ -180,12 +186,6 @@ Za OpenRAN stoi mocno USA, bo oni nie mają swojego vendora w wielkiej piątce, 
 
 ![](img/8.png)
 
-# TESM 3 
-
-## 19
-
-![](A:\Ejek\STUDIA\zeszyty-22z\TESM\img\x.png)
-
 
 
 ## 20
@@ -250,3 +250,100 @@ Kolos1
 3. Do czego służy radio bearer? jakie ma funkcje?
 
 Coś takiego ale na materiał jaki mieliśmy w te kolosy.
+
+![](img/9.png)
+
+Na air interface nie musi być szyfrowania w User Plane, i nikt w polsce w LTE nie szyfruje i to jest największa dziura bezpieczeństwa w sieciach moblinych.
+
+# TESM 4
+
+Dzisiaj popatrzymy na Air Interface
+
+## AS vs NAS
+
+W NAS UE gada z AMF
+
+W AS UE z gNodeB
+
+### Peer to Peer communication: protocol layer
+
+OSI:
+
+- Apk
+- Pres
+- Session
+- Transport
+- sieci
+- MAC
+- Phy
+
+![](img/10.png)
+
+### AS CP 8
+
+RRC to serwis point, który kontroluje wszystko co sie dzieje w antenie, jest to punkt kontaktowy z corem, core wysyła na niego komendy jak co robić
+
+A właściwie zajmuje się:
+
+- broadcasting of system information (np. info synchronizacyjne (ustalanie jak wysylac i co wysylac w jakich slotach czasowych))
+- czy jest standalone czy non-standalone (czy dwa interfejsy radiowe czy nie (dual connectivity)), czy bedziemy używac carrier aggregation
+- ustala czy bedzie szyfrowanie i jakie
+- konfiguruje radio bearer (service radio bearer SDR i Data radio bearer) (ale to core daje info o QoS Flow w SDAP jakie ma być)
+- robi handover i interRAT (handover technologiczny)
+- zleca robienia pomiarów UE (do handoveru i do lokalizowania UE), zeby wiedziec jaką moc trzeba nadawać (jak UE blizej stacji to mozna zmniejszyc moc)
+- wie gdzie forwardować NAS
+- są trzy stany RRC
+  - idle - nie ma ustalone jeszcze połączenia RRC (apki RRC nie znają się nawzajem)
+    - wszystkie decyzje są po stronie UE
+    - RRC idle w antenie ma tylko przekazać coś do core i wtedy core moze zrobić stan RRC_Connected
+    - antena w idle robi paging
+  - connected
+    - jest sesja danych, RRC kontroluje wszystko co sie dzieje z UE, wszystkie decyzje są po jego stronie
+  - inactive
+    - jeszce nie ma sesji danych, 
+
+Paging - wysyłanie na broadcastowy kanał, "ktoś chce sesje z tą komórką" i UE się odzywa "to ja"
+
+### AS UP 9/10
+
+stack taki sama ale jest SDAP
+
+SDAP - nowość w porównaniu do 4G to QoS Flow - najmniejsza jednostka, która decyduje o jakosci przekazu danych
+
+(te QoS Flow wymusza UPF).
+
+Są dwa sposoy na kontrolowanie Uplink i Downlink:
+
+- albo moze być negocjowane (akurat tutaj negocjowane jest krótkie, bo antena powie jak ma być)
+- reflective UL i DL po 50%
+
+najwazniejsza funkcjonalnosc SDAP to zmieniać QoS Flow na SRB i DRB
+
+PDCP istnieje w LTE, SDAP nie. Więc PDCP funkcjonalność jest copy&paste z poprzedniego standardu więc tam jest bardzo duzo a SDAP robi malutko.
+
+## AS UP 11
+
+PDCP zajmuje sie prawie wszystkim z przekzaem danych. 
+
+data protection - integrity protection ze dane nie zostaly po drodze zmienione
+
+AM (podobne do TCP), UM (podobne do UDP)
+
+Sequence flow dla SDAP (lub PDCP chłop się pomylił) dla kazdego pakietu
+
+![](img/11.png)
+
+Reply/Replay protection - dajemy jeszcze sequence number, i dzieki temu kazdy pakiet jest szyfrowany innym kluczem, zeby nikt inny (kto nie wie jaki jest seq. num. ) nie bedzie wstanianie wysyłać mi ten pakiet, nawet jesli we ten KLUCZ (**K**)
+
+W 5G jest nie tylko encryption ale tez reply protection, czyli enkryptowanie kazdy pakiet
+
+PDCP dzieki seq.num podczas handoveru jak się pakietu zgubi to tez wie które retransferować
+
+**RLC**
+
+ile instancji mamy PDCP na instancji RLC jeśli mamy dual connectivity to pakiet PDCP moze iść na dwie RLC (bo moge uzywac dwie f, zeby wysylac to) i to się nazywa split
+
+a split ACknowledge mode to są jeszcze dwie instancje DRB, jedna DL jedna UL zeby dostawać acknowledge pakietów czyli instancji RLC jest 3 (on mówi 4).
+
+"zamyślenie aaa bueno jeszcze jak ten pakiet cccoś tam..."
+
