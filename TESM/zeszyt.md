@@ -255,27 +255,46 @@ Coś takiego ale na materiał jaki mieliśmy w te kolosy.
 
 Na air interface nie musi być szyfrowania w User Plane, i nikt w polsce w LTE nie szyfruje i to jest największa dziura bezpieczeństwa w sieciach moblinych.
 
-# TESM 4
+# Kolos
 
-Dzisiaj popatrzymy na Air Interface
+Był kolos
 
-## AS vs NAS
+# Air Interface
 
-W NAS UE gada z AMF
 
-W AS UE z gNodeB
+
+## Intro
+
+Dzisiaj popatrzymy na Air Interface.
+
+Jest to komunikacja między UE a gNodeB.
+
+Należy tu rozróżnić komunikację dwóch typów UE może gadać z gNodeB albo w ramach:
+
+- NAS - Non-Access Stratum. Żeby gadać z core network (gNodeB zapewnia wtedy transparentny interfejs N1). UE <--> AMF
+- AS - Access Stratum - Żeby gadać z RAN'em (interfejs N2). UE <--> gNodeB
+
+## Protocol Stack
+
+Jak wygląda protocol stack w 5G?
+
+<img src="img/13.png" style="zoom:150%;" />
+
+My dzisiaj zajmujemy się Access Stratum między UE a gNodeB:
+
+![](img/14.png)
+
+Skoro widać te wartswy oraz na nich działające protokoły to zdefiniujmy sobie kilka rzeczy.
+
+**Peer to peer communication** - apka na UE działająca w warstwie `n` "gada" z apką w gNodeB działającą w warstwie `n`. Z innymi warstwami nie gadają. To w jakim języku one gadają to określa *protokół danej warstwy*
+
+**Channel, Service Access Point** - apka warstwy `n`, żeby wysłać coś do apki warstwy `n` po drugiej stronie musi swoją wiadomość wsadzić do apki warstwy niższej. Robi to za pomocą *service access point*, wystawiony przez tę warstwę wkładając swoją wiadomość w odpowiedni *channel*, który między tymi warstwami istnieje. 
+
+**Protocol Data Unit** - Jak apka warstwy `n` coś wytworzy do wysłania, to nazywamy to *Procotocl Data Unit*. 
+
+**Service Data Unit** - Jak apka warstwy `n` wyśle swoje PDU przez channel wyśle do apki warstwy `n-1` to apka warstwy `n-1` nazywa to *Service Data Unit* warstwy `n`. Bo warstwa `n` korzysta z usługi warstwy `n-1`, więc dla warstwy niższej to jest coś co ona ma obsłużyć.
 
 ### Peer to Peer communication: protocol layer
-
-OSI:
-
-- Apk
-- Pres
-- Session
-- Transport
-- sieci
-- MAC
-- Phy
 
 ![](img/10.png)
 
