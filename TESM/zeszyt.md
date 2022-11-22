@@ -343,7 +343,117 @@ PDCP dzieki seq.num podczas handoveru jak się pakietu zgubi to tez wie które r
 
 ile instancji mamy PDCP na instancji RLC jeśli mamy dual connectivity to pakiet PDCP moze iść na dwie RLC (bo moge uzywac dwie f, zeby wysylac to) i to się nazywa split
 
-a split ACknowledge mode to są jeszcze dwie instancje DRB, jedna DL jedna UL zeby dostawać acknowledge pakietów czyli instancji RLC jest 3 (on mówi 4).
+a split ACknowledge mode to są jeszcze dwie instancje DRB, jedna DL jedna UL żeby dostawać acknowledge pakietów czyli instancji RLC jest 3 (on mówi 4).
 
 "zamyślenie aaa bueno jeszcze jak ten pakiet cccoś tam..."
 
+## AS UP 9/10
+
+W 4G nie było, a w 5G jest nacisk na QoS. 4G mniej więcej cały ruch był ten samo - multimedia. Różnica był tylko między voice i multimedia (voice+video), ale to tak naprawdę załatwisz jedną kolejką. Jest niby 9 klas, ale jest 3 używane na głos i 1 na mutlimedia.
+
+Ale w 5G jest sieć która ma tworzyć dużo nowych modeli biznesowych i URLLC, MBB, MMTC, i wgl to już klasi jest mega dużo fest że hej. i Właśnie dlatego się pojawia SDAP, który jedyne co robi to kontroluje QoS flow. 
+
+Każdy pakiet przychodzi z QoS Flow ID i wszystkie które przyjdą z takim samym beda potraktowane tak samo. Te QoS Flow ID nadaje SMF dla sesji.
+
+SDAP kontroluje QoS Flow i mapuje na radio bearer
+
+![](img/12.png)
+
+ARP definiuje ile max sesji transport channel (moze ile slotów?)
+
+, guaranteed flow rate, maks. flow rate, max packet loss - to podobne do Token Bucket , i te parametry defniuja ten wiadro
+
+Notification Control from RAN - niech medium informuje ze jest np. dużo błędów albo zbyt dużo pakietów w wiadrze i żeby zwolnić tempo, więc tam wyżej SDAP musi wyrzucić jakąś sesję i wtedy SDAP mówi do SMF "niestety, trzeba tę sesję wyrzucić".
+
+BER w fiber 10^-11
+
+A w air interface 10^-6-10^-8
+
+Ale BER to nie tylko powietrze ale też ze nie procesujemy wystarczająco szybko tego wiadra, więc mamy dwa błędy medium oraz process
+
+## AS UP 11
+
+PDCP - ma bardzo duzo funkcjonalności, ogólnie zeby dane były bezpieczne i niezawodne
+
+Daje seq num poczebny do handover
+
+kompresja nagłówka TCP/IP antena ma max 100 userów, więc nie ma sensu wysyłać całego nagłówka IP, ale tylko TCP/IP kompresujemy, HTTP to dla nas dane więc "nie znamy tego" jako PDCP, a tych niżej nie kompresujemy, bo to prawdziwa robota, to musi być jakie jest.
+
+Do szyfrowania pakietów używany jest nie tylko `kenc` ale też i `seqNum` - i to się nazywa Replay Protection. 
+
+Potem kolejny algorytm robi Integrity Protection - jeśli zmienimy 1 bit w tych danych -> będziemy wiedzieli.
+
+PDCP - kontroluje Dual Connectivity - połączenie UE do dwóch anten na raz.
+
+Jeśli mamy Dual Connectity ON to robimy splitDRB
+
+Jeśli potrzebujemy Uplink i Downlink sesje, która to potrzebuje, to będzie mieli 4 RLC per każdy PDCP.
+
+Decyzja czy na dole radia będzie robił ACK, UM lub nic w warstwie RLC, czyli czy potwierdzać czy nie potwierdzać każdy pakiet.
+
+## AS UP 12
+
+RLC
+
+PDCP decyduje jaki jest sposób przekazu a RLC wykonuje ten sposób.
+
+
+
+MAC decyduje ile bit/s ja wysyłam w powietrzu, ofc przez nagłówek MAC jest to inna wartość niż w RLC.
+
+Najważniejsza fucja MAC to kontrolować ile mogę bitów wysyłać, tak żeby nie zakłócać szczelin czasowych.
+
+W LTE można było robić konkatenacje dwóch małych bitów i wkładać w jeden timeslot, odwrotność tego to segmentacja.
+
+W 5G nie ma konkatenacji, jest tylko segmentacja. Bo 5G kładzie nacisk na latency, a jak jest konkatencja to trzeba czekac aż procesowanie przekaże drugi mały pakiet do pary. Czyli mamy mały pakiet to nie czekamy na następny mały, że bo konkatenować.
+
+
+
+nagłówek
+
+- Data czy Control, dlaczego to zapisujemy? Bo w segmentacji tracimy info o DRB itp
+- Polling - 1 bit, który mówi czy ma potwierdzać czy ten pakiet przyszedł czy nie (ARQ)
+- Segment offset - ile bitów danych est z tego segmentu
+- Segment info - czy była segmentacja
+- Segment number - wiadomka
+
+RCL przygotowuje pakiety do MAC'a
+
+## AS UP 13
+
+MAC ostatnia warstwa przed fizyczną. Zaraz dojdzie do zmiany na sygnał elektryczny :D
+
+- Inbdand monitoring, MAC w UE co jakiś czas wysyła info odnośnie moc sygnału, synchronizacja itp.
+
+- Uplink channel prio .. - MAC w UE wysyłaj jak ważny jest ten pakiet, zeby antena jak nie moze obsluzyc wszystkiego w uplink, to zeby miala priorytety jakieś do decyzji
+
+- Uplink time alignment - między antena i UE może byc kilka km, więc droga propagacji już może wpływać na synchronizacje, (światło leci z `c`). Więc antena patrzy jaka jest moc sygnału RSRP i oczacowuje jak daleko UE jest od anteny i UE wtedy wysyła trochę wcześniej niż ma timeslot dany. 
+
+- HARQ: MAC ma też swój mechanizm ARQ no bo najwięcej pakietów sie traci w kolejkach do MAC'a, a nie w powietrzu :o 
+
+  - > Bo to tak jest, że własnie kolejka do MAC'a traci najwięcej pakietów, bo dopiero wtedy się okazuje czy medium (powietrze) jest w stanie przesyłać co mu się narzuci 
+
+  - multitasking jest ważny w MAC, bo nie możemy tracić czasu
+
+  - soft combining - jeśli pakiety przyjdzie z błędem ARQ chowa ten pakiet, i potem jak przyjdzie retransmisja ale znowu popsuty pakiet, to możliwe, że na podstawie dwóch możemy zrobić dobry pakiet
+
+  - HARQ jest wszędzie gdzie jest MAC, nie tylko 5G
+
+Są dwa przypadki zeby uruchomić UL Random Access Procedure
+
+- handover: wtedy RRC inicjuje RAP mówiąc to do MAC i one otworzą higher layers
+- jeśli do MAC przyjdzie nowy strumień danych, czyli to znaczy, że jest nowa sesja, wtedy sam MAC inicjalizuje procedure RAP
+
+RAP kontroluje MAC
+
+Są dwa sposoby na RAP:
+
+- czytać z System Info że możesz wysyłać w timeslot taki, z taką preamble. I SIB wysyła że wysyłaj w `t+tau`, gdzie `tau` jest od `0 do 100 mikro sekund` i wtedy my losujemy że np. tau=27us
+
+
+
+Obczaj sobie Contention-Free RA oraz Contention-Based 
+
+Based jest używane kiedy Free się nie udaje kilka razy.  
+
+Kanały logiczne, są mapowane na kanały transportowe, a potem na kanały fizyczne. 
