@@ -1,125 +1,69 @@
-# MPI 3
+# Co będzie na kolosie
 
-W sieci komutacji połączeń to jeden call był zadaniem, a w komutacji pakietów to pakiety.
+- [ ] Jaki to system **M/D/n/K**?
+- [ ] Co to jest **sieć Jakcsona**?
+- [ ] Udowodnij, że rozkład wykładniczy jest **rozkładem bezpamięciowym**
+- [ ] Wyprowadź zależność na średni czas oczekiwania pakietów obsługiwanych z niższym priorytetem w systemie **M/G/1** z dwoma priorytetami
+- [ ] Podaj **metryki** opisujące jakość przekazu pakietów przez sieć
+- [ ] Wyjaśnij czym charakteryzuje się rozkład **pod wykładniczy i nad wykładniczy**
+- [ ] Udowodnij, że strumień wyjściowy w systemie **M/M/1** jest opisany rozkładem Poissona
+- [ ] Wyprowadź zależność na średni czas oczekiwania w systemie **M/G/1**
 
-A jeśli rozważamy chmurę obliczniową to okazuje się, że do niej też liczba żądań jaka przychodzi jest dana rozkładem poissona.
+# Blok A
 
+## Co będzie
 
+- **Modelowanie ruchu w sieci Internet**, w tym w sieci *best* *effort* (model ARIMA, GARCH itd.), modelowanie ruchu generowanego przez różne typy aplikacji (wideo, mowa, dane) oraz znaczenie źródła ON/OFF. 
 
-***
+- **Użyteczne modele kolejkowe dla modelowania elementów Internetu**. Modelowanie elementów infrastruktury sieciowej i użyteczne algorytmy. Modelowanie elementów infrastruktury obliczeniowej i użyteczne algorytmy
 
-**Rozkład wykładniczy (2)**
+- **Projektowanie klas usług „od końca do końca” w sieci gwarantującej jakość przekazu** **QoS/QoE** obejmujące metody matematyczne dla algorytmów przyjmowania/odrzucania wywołań, algorytmy szeregowania pakietów w węzłach, monitorowania ruchu, wielokryterialnego ruting między domenowy, …)
 
-Ten dowód może być na kolosie!!!
+## 0. Plan
 
-Rozkład stały ma współczynnik 0
+1. Wprowadzenie do QoS
 
-Rozkład wykładniczy ma 1 i on jest taką granicą
+2. Metryki QoS na poziomie pakietów
 
-Rozkłady <1 nazywamy **podwykładnicze**
+3. System obsługi
 
-Rozkład >1 nazywam **nadwykładnicze**, więc jest on ważny
+4. Rozkład Poissona
 
-***
+5. Rozkłady wykładniczy, pod wykładniczy i nad wykładniczy 
 
-są dwa urządzenia
+6. Inne ważne zależności
 
-czas zajętości jeden ma rozkład wykładniczy z parametrem mi1 a drugi ma mi2
+7. System z oczekiwaniem M/M/1 
+   1. Proces Markowa
+   2. Sieci Jacksona
 
-jaki jest rozkład jak jedno (obojętnie które) zostanie zwolnione?
+8. System ze stratami M/M/n/n 
+   1. Wzór Erlanga
 
-no  i to jest zmienna losowa X
+9. System M/G/1
 
-okazuje się że to też jest rozkład wykładniczy, ale z parametrem mi1+mi2
+10. System M/G/1 z priorytetami 
 
-Czy mogę założyć, że długość pakietu w IP jest dana rozkładem wykładniczym? W praktyce tak zakładamy, ale trzeba uważać, bo wtedy też z pewnym p-stwem dlugość tego pakietu jest nieskończona (no bo to jest rozkład ciągły). No teoria kolejek ma takie przybliżenia, cóż matematyka to tylko narzędzie.
+## 1. Wprowadzenie do QoS
 
-PRZYGOTOWUJĄC SIĘ NA KOLOSA SAMEMU WYPROWADZIĆ WZORY, KTÓRE SA NA SLAJDACH.
+![](img/2.png)
 
-***
+To co generuje sieć to ocenia/standaryzuje *"Y.1541 : Network performance objectives for IP-based services"*. Z tym, że poziom sieci widzi apka.
 
-**Rozkłady podwykładnicze i nadwykładnicze**
+To co generuje apka to ocenia/standaryzuje *"ITU G.1010 End-user multimedia QoS categories"*. Z tym że poziom aplikacji "widzi" user.
 
-nadwykładniczy ma dużą zmienność, podwykładniczy dąży do stałego.
+To co widzi user to ocenia jego rozum, jego subiektywna ocena.
 
-***
+![](img/3.png)
 
-Nie sluchałem długo
+Strumień pakietów jak przejdzie przez sieć to:
 
-****
+- po pierwsze każdy z pakietów przyjdzie z jakimś opóźnieniem - **delay**
+- po drugie dla każdego z pakietów wartość tego opóźnienia będzie inna - **delay jitter**
+- po trzecie niektóre pakiety mogą się zgubić - **packet loss**
+- po czwarte sieć jest w stanie przesłać tylko daną ilość pakietów w danym czasie - **throughput**
 
-**Proces poissona (1)**
+## 2. Metryki QoS na poziomie pakietów
 
-pierwsza własność - Dlaczego to ważna własność?
-
-![](img/1.png)
-
-No bo jak mamy ruter i do niego przychodzą dwa źródła tak opisane to wypuszcza wtedy tak.
-
-Wyprowadzenia tych wzorów są na kolosie 
-
-Druga - to analogiczny symetrycznie odbity rysunek
-
-Trzecia
-
-Tam gdzie jest mniejsza zmienność to jest łatwiej - dlatego ATM tak miało. Bo wtedy przy tym samym napływie czas przepływu pakietu przez sieć jest najszybszy.
-
-Zmiennośc oznacza, że jeśli patrzyymy na system to w pewnym momencie moze przyjść bardzo dużo i zapchać go, więc cieżko zwymiarować --> stałej długości pakiety dają lepszy obraz. 
-
-***
-
-**Wzór Littla**
-
-niby prosty wzor a jego pierwszy dowód byl na 10 stron
-
-***
-
-**Wzór na p-stwo straty**
-
-ro - ruch - napływ * czas obsługi
-
-**co chciałbym zebyście znali**
-
-- M/M/1
-  - podstawowy system który ulatwia analize sieci
-- system ze stratami M/M/n/n
-  - jeśli nie ma wolnych urządzeń obsługujących to pakiet/żądanie/klient zostaje stracony
-- M/G/1 rozkład dowolny byle był dla każdego zadania taki sam
-- M/G/1 z priorytetami
-
-***
-
-**System M/M/1**
-
-Jaka jest własność że daje najmniejszy czas oczekiwania w systemie? Najpierw obsługuje pakiety krótki a te długie niech czekają, ta metoda daje najlepsze wyniki.
-
-***
-
-**System M/M/1 (2)**
-
-Czyli np. ile klientów jest teraz w systemie. Czyli np. nie ma 0.1 klienta jak jest 1 klient, to potem moze być ich tylko 2 (nie 1.6 czy cos)
-
-Albo że może przyjść naraz tyko jedno zadanie.
-
-W systemie z czasem dyskretnym mamy ściśle określone momenty w których coś się może zdazyć, i tylko w nich może coś się zdarzyć
-
-3) zależy tylko od stane anie od przeszłośći - to nazywamy ze jest **bezpamięciowy**
-
-***
-
-**Model sieci komputerowej**
-
-To jest sieć kaskada przejść przez system M/M/1
-
-Wyliczam wszędzie oddzielnie i potem czas oczekiwania to jest suma
-
-co ja muszę założyć jeśli stosuje coś takiego? Proces napływu jest zgodny z poissonem, no więc wyjście też
-
-Robimy założenie i teraz jakie sa konsekwencje tego założenia? Np. to ze w realu to nie jest poisson.
-
-***
-
-**Zastosowanie systemu M/M/1 do wyliczania ...**
-
-Każdą kaskadę można analizować niezależnie.
+## 2.1 IP Packet Transfer Delay
 
