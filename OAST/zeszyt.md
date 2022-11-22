@@ -542,9 +542,9 @@ Przykładowe techniki konstruowania algorytmów heurystycznych to:
 
 **Populacja** - zbiór N *chromosomów*, w jednej iteracji mamy wiele *chromosomów*, którzy kandydują jako optimum
 
-**Generacja** - generacja określa iteracje w algorytmie, kolejne *generacje* to następujące po sobie *populacje*. *Populacja*, może naprzykład liczyć 100 *chromosomów*, na podstawie których powstaje potem *populacja* w nowej *generacji*.
+**Generacja** - generacja określa iteracje w algorytmie, kolejne *generacje* to następujące po sobie *populacje*. *Populacja*, może na przykład liczyć 100 *chromosomów*, na podstawie których powstaje potem *populacja* w nowej *generacji*.
 
-**Funckja dopasowania** - Funckja oceniająca jak bardzo pojedynczy chromosom jest wartościowy jako rozwiązanie. Sposób ewaluacji chromosomu.
+**Funkcja dopasowania** - Funkcja oceniająca jak bardzo pojedynczy chromosom jest wartościowy jako rozwiązanie. Sposób ewaluacji chromosomu.
 
 **Geny** - reprezentują wewnętrzną strukturę *chromosomu*. Są po to, żeby dało sie mutować/krzyżować *chromosomy*.
 
