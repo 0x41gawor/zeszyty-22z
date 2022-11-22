@@ -282,7 +282,7 @@ Jak wygląda protocol stack w 5G?
 
 My dzisiaj zajmujemy się Access Stratum między UE a gNodeB:
 
-![](img/14.png)
+<img src="img/14.png" style="zoom:150%;" />
 
 Skoro widać te wartswy oraz na nich działające protokoły to zdefiniujmy sobie kilka rzeczy.
 
@@ -298,51 +298,128 @@ Skoro widać te wartswy oraz na nich działające protokoły to zdefiniujmy sobi
 
 ![](img/10.png)
 
-### AS CP 8
+### Control Plane
 
-RRC to serwis point, który kontroluje wszystko co sie dzieje w antenie, jest to punkt kontaktowy z corem, core wysyła na niego komendy jak co robić
+#### RRC
 
-A właściwie zajmuje się:
+**Radio Resource Control** - protocol used in 5G on the Air Interface between UE and gNodeB. Specified in TS 38.331. RRC messages are trasnported via PDCP-messages. The major functions include:
 
-- broadcasting of system information (np. info synchronizacyjne (ustalanie jak wysylac i co wysylac w jakich slotach czasowych))
-- czy jest standalone czy non-standalone (czy dwa interfejsy radiowe czy nie (dual connectivity)), czy bedziemy używac carrier aggregation
-- ustala czy bedzie szyfrowanie i jakie
-- konfiguruje radio bearer (service radio bearer SDR i Data radio bearer) (ale to core daje info o QoS Flow w SDAP jakie ma być)
-- robi handover i interRAT (handover technologiczny)
-- zleca robienia pomiarów UE (do handoveru i do lokalizowania UE), zeby wiedziec jaką moc trzeba nadawać (jak UE blizej stacji to mozna zmniejszyc moc)
-- wie gdzie forwardować NAS
-- są trzy stany RRC
-  - idle - nie ma ustalone jeszcze połączenia RRC (apki RRC nie znają się nawzajem)
-    - wszystkie decyzje są po stronie UE
-    - RRC idle w antenie ma tylko przekazać coś do core i wtedy core moze zrobić stan RRC_Connected
-    - antena w idle robi paging
-  - connected
-    - jest sesja danych, RRC kontroluje wszystko co sie dzieje z UE, wszystkie decyzje są po jego stronie
-  - inactive
-    - jeszce nie ma sesji danych, 
+- connection Establishment and connection Release (connection na kanale logicznym timeslotowym)
+- broadcast of system information
+  - np. info synchronizacyjne (ustalanie jak wysylac i co wysylac w jakich slotach czasowych)
+  - czy jest standalone czy non-standalone (czy dwa interfejsy radiowe czy nie (dual connectivity)), czy bedziemy używac carrier aggregation
+  - czy bedzie szyfrowanie i jakie
+- paging notification
+  - wysyłanie na broadcastowy kanał, "ktoś chce sesje z tą komórką" i UE się odzywa "to ja"
+- radio bearer establishment, reconfiguration and release (dedykowany bearer dla UE na coś tam)
+  -  (service radio bearer SDR i Data radio bearer) (ale to core daje info o QoS Flow w SDAP jakie ma być)
+- RRC connection mobility procedures
+  - zleca robienia pomiarów UE (do handoveru i do lokalizowania UE), zeby wiedziec jaką moc trzeba nadawać (jak UE blizej stacji to mozna zmniejszyc moc)
+  - handover and interRAT handover 
+  - wie gdzie forwardować NAS
 
-Paging - wysyłanie na broadcastowy kanał, "ktoś chce sesje z tą komórką" i UE się odzywa "to ja"
 
-### AS UP 9/10
 
-stack taki sama ale jest SDAP
+> RRC to serwis point, który kontroluje wszystko co sie dzieje w antenie, jest to punkt kontaktowy z corem, core wysyła na niego komendy jak co robić.
+>
+> By means of the signalling functions the RRC configures the user and control planes according to the network status and allows for Radio Resource Management strategies to be implemented
 
-SDAP - nowość w porównaniu do 4G to QoS Flow - najmniejsza jednostka, która decyduje o jakosci przekazu danych
+The operation of the RRC is guided by a state machine which defines certain specific states that a UE may be present in.  The different states in this state machine have different amounts of radio resources associated with them and these are the resources that the UE may use when it is present in a given specific state.
 
-(te QoS Flow wymusza UPF).
+Stany RRC w jakich może być UE z danym gNodeB:
 
-Są dwa sposoy na kontrolowanie Uplink i Downlink:
+- `RRC_Idle`- nie ma ustalone jeszcze połączenia RRC (apki RRC nie znają się nawzajem)
+  - wszystkie decyzje są po stronie UE
+  - RRC idle w antenie ma tylko przekazać coś do core i wtedy core moze zrobić stan RRC_Connected
+  - antena w idle robi paging
+- `RRC_Connected`
+  - jest sesja danych, RRC kontroluje wszystko co sie dzieje z UE, wszystkie decyzje są po jego stronie
+- `RRC_Inactive`
+  - jeszce nie ma sesji danych, 
 
-- albo moze być negocjowane (akurat tutaj negocjowane jest krótkie, bo antena powie jak ma być)
-- reflective UL i DL po 50%
+### User Plane
 
-najwazniejsza funkcjonalnosc SDAP to zmieniać QoS Flow na SRB i DRB
+#### SDAP
 
-PDCP istnieje w LTE, SDAP nie. Więc PDCP funkcjonalność jest copy&paste z poprzedniego standardu więc tam jest bardzo duzo a SDAP robi malutko.
+**Service Data Adaptation Protocol** - introduced in 5G. Maps **Qos Flow IDs** to **Radio Bearers**. The SDAP layer is configured by the RRC.
+
+Jak UE rozpocznie *PDU session*, to SMF wymyśli dla niej *Qos Flow ID*, które w 5G jest najmniejszą jednostką, która w core decyduje o jakoście przekazu danych. 
+
+> W LTE core zlecał RAN'owi bezpośredni jaki ma zrobić bearer (tym się zajmował protokół PDCP, który w 5G jest nieco copy&paste z 4G). Jedyn więc funkcja SDAP, to mapowanie QoS Flow, które umie core, na Radio Bearer, które umie PDCP. 
+
+Do warstwy SDAP każdy pakiet przychodzi z QoS Flow ID i wszystkie które przyjdą z takim samym beda potraktowane tak samo.
+
+SDAP podejmuje na podstawie QoS Flow ID decyzję:
+
+-  jakiego typu tworzyć Bearer'y:
+  - Guaranteed BitRate (GBR)
+  - Non-Guaranteed BitRate (Non-GBR)
+  - GBR with latency
+
+- Jak ma być transfer w Uplink:
+  - negotiated QoS, czy
+  - reflective QoS (po 50%)
+- Który typ Radio Bearer zrobić:
+  - Signalling Radio Bearer:
+    - SRB0 - Common RRC Signalling: (`rrc connection request`, `rrc connection setup`, `rrc connection re-establishment request`). Since this radio bearer is used for all the user that's why it is not security and integrity protected.
+    - SRB1 - UE dedicated RRC signalling (`rrc connection setup complete`, `rrc connection re-establishment complete`, `rrc connection re-configuration complete`). Once the AS security is activated, all the signalling messages over this bearer will be security and integrity protected.
+    - SRB2 - UE dedicated NAS messages such as ` dedicated bearer creation message`
+  - Data Radio Bearer:
+    - DRB - is established for the transmission of data plane packets. Multiple DRBs can be established for an UE due to different types of services used by UE such as internet browsing, voip call etc. 
+
+Na jedną *PDU session* tworzone jest jedno *SDAP entity*. Czym można je skonfigurować?
+
+- QoS Flow Identifier (QFI)
+- Allocation and Retention Priority (ARP)
+- Reflective QoS attribute
+- Guaranteed Flow Rate + max Flow Rate, Max packet loss
+  - to podobne do Token Bucket , i te parametry defniuja ten wiadro
+- Notification control from RAN
+  - niech medium informuje ze jest np. dużo błędów albo zbyt dużo pakietów w wiadrze i żeby zwolnić tempo, więc tam wyżej SDAP musi wyrzucić jakąś sesję i wtedy SDAP mówi do SMF "niestety, trzeba tę sesję wyrzucić".
+
+> PDCP istnieje w LTE, SDAP nie. Więc funkcjonalność PDCP  jest copy&paste z poprzedniego standardu, więc tam jest bardzo duzo. SDAP robi malutko.
+
+> W 4G nie było, a w 5G jest nacisk na QoS. 4G mniej więcej cały ruch był ten samo - multimedia. Różnica był tylko między voice i multimedia (voice+video), ale to tak naprawdę załatwisz jedną kolejką. Jest niby 9 klas, ale jest 3 używane na głos i 1 na mutlimedia.
+>
+> Ale w 5G jest sieć która ma tworzyć dużo nowych modeli biznesowych i URLLC, MBB, MMTC, i wgl to już klasi jest mega dużo fest że hej. i Właśnie dlatego się pojawia SDAP
+
+#### PDCP
+
+**Packet Data Convergence Protocol** - protocol located on top of the air interface. Provides transport services for RRC (CP) and SDAP (UP) upper layers. Specified in TS 38.323. Functionalities:
+
+- transfer of control/user plane data
+  - SDAP wybiera jakość jaka ma być, jest odpowiedzialny za wysoko-poziomowy (najwyżej) transport
+- TCP/IP header compression
+  - antena ma max 100 userów, więc nie ma sensu wysyłać całego nagłówka TCP/IP. Kompresujemy tylko nagłówki TCP/IP, HTTP (lub inny protokół apki) to dla nas dane więc "nie znamy tego" jako PDCP.
+- Sequence numbering;
+  - przydant np. w handover
+- ciphering;
+- integrity protection.
+  -  jeśli Oscar zmieni choćby 1 bit w tych danych -> będziemy wiedzieli.
+- reply protection
+  - do szyfrowania pakietów używany jest nie tylko `kenc` ale też i `seqNum` 
+  -  dajemy jeszcze sequence number, i dzieki temu kazdy pakiet jest szyfrowany innym kluczem, zeby nikt inny (kto nie wie jaki jest seq. num. ) nie bedzie wstanianie wysyłać mi ten pakiet, nawet jesli wie ten KLUCZ (**K**)
+
+- PDCP PDU discards TODO????
+
+- PDCP PDU routing in dual connectivity: split/non split (1,2 or 4 RLC entities per PDCP TODO????
+
+  - Dual Connectivity - połączenie UE do dwóch anten na raz.
+
+    Jeśli mamy Dual Connectity ON to robimy splitDRB
+
+    Jeśli potrzebujemy Uplink i Downlink sesje, która to potrzebuje, to będzie mieli 4 RLC per każdy PDCP.
+
+- PCDP PDU for lower latency (SRB0)
+
+- Selection of AM, UM ,TM 
+
+  - Ack Mode - jak w TCP
+  - UnAck Mode - jak w UDP
+  - Transparent Mode - jak //TODO
+  - Czyli czy każemy, żeby RLC potwierdzało każdy RLC message czy nie.
 
 ## AS UP 11
-
-PDCP zajmuje sie prawie wszystkim z przekzaem danych. 
 
 data protection - integrity protection ze dane nie zostaly po drodze zmienione
 
@@ -351,12 +428,6 @@ AM (podobne do TCP), UM (podobne do UDP)
 Sequence flow dla SDAP (lub PDCP chłop się pomylił) dla kazdego pakietu
 
 ![](img/11.png)
-
-Reply/Replay protection - dajemy jeszcze sequence number, i dzieki temu kazdy pakiet jest szyfrowany innym kluczem, zeby nikt inny (kto nie wie jaki jest seq. num. ) nie bedzie wstanianie wysyłać mi ten pakiet, nawet jesli we ten KLUCZ (**K**)
-
-W 5G jest nie tylko encryption ale tez reply protection, czyli enkryptowanie kazdy pakiet
-
-PDCP dzieki seq.num podczas handoveru jak się pakietu zgubi to tez wie które retransferować
 
 **RLC**
 
@@ -368,21 +439,13 @@ a split ACknowledge mode to są jeszcze dwie instancje DRB, jedna DL jedna UL ż
 
 ## AS UP 9/10
 
-W 4G nie było, a w 5G jest nacisk na QoS. 4G mniej więcej cały ruch był ten samo - multimedia. Różnica był tylko między voice i multimedia (voice+video), ale to tak naprawdę załatwisz jedną kolejką. Jest niby 9 klas, ale jest 3 używane na głos i 1 na mutlimedia.
-
-Ale w 5G jest sieć która ma tworzyć dużo nowych modeli biznesowych i URLLC, MBB, MMTC, i wgl to już klasi jest mega dużo fest że hej. i Właśnie dlatego się pojawia SDAP, który jedyne co robi to kontroluje QoS flow. 
-
-Każdy pakiet przychodzi z QoS Flow ID i wszystkie które przyjdą z takim samym beda potraktowane tak samo. Te QoS Flow ID nadaje SMF dla sesji.
+ Te QoS Flow ID nadaje SMF dla sesji.
 
 SDAP kontroluje QoS Flow i mapuje na radio bearer
 
 ![](img/12.png)
 
 ARP definiuje ile max sesji transport channel (moze ile slotów?)
-
-, guaranteed flow rate, maks. flow rate, max packet loss - to podobne do Token Bucket , i te parametry defniuja ten wiadro
-
-Notification Control from RAN - niech medium informuje ze jest np. dużo błędów albo zbyt dużo pakietów w wiadrze i żeby zwolnić tempo, więc tam wyżej SDAP musi wyrzucić jakąś sesję i wtedy SDAP mówi do SMF "niestety, trzeba tę sesję wyrzucić".
 
 BER w fiber 10^-11
 
@@ -394,19 +457,7 @@ Ale BER to nie tylko powietrze ale też ze nie procesujemy wystarczająco szybko
 
 PDCP - ma bardzo duzo funkcjonalności, ogólnie zeby dane były bezpieczne i niezawodne
 
-Daje seq num poczebny do handover
-
-kompresja nagłówka TCP/IP antena ma max 100 userów, więc nie ma sensu wysyłać całego nagłówka IP, ale tylko TCP/IP kompresujemy, HTTP to dla nas dane więc "nie znamy tego" jako PDCP, a tych niżej nie kompresujemy, bo to prawdziwa robota, to musi być jakie jest.
-
-Do szyfrowania pakietów używany jest nie tylko `kenc` ale też i `seqNum` - i to się nazywa Replay Protection. 
-
-Potem kolejny algorytm robi Integrity Protection - jeśli zmienimy 1 bit w tych danych -> będziemy wiedzieli.
-
-PDCP - kontroluje Dual Connectivity - połączenie UE do dwóch anten na raz.
-
-Jeśli mamy Dual Connectity ON to robimy splitDRB
-
-Jeśli potrzebujemy Uplink i Downlink sesje, która to potrzebuje, to będzie mieli 4 RLC per każdy PDCP.
+PDCP - kontroluje 
 
 Decyzja czy na dole radia będzie robił ACK, UM lub nic w warstwie RLC, czyli czy potwierdzać czy nie potwierdzać każdy pakiet.
 
@@ -415,8 +466,6 @@ Decyzja czy na dole radia będzie robił ACK, UM lub nic w warstwie RLC, czyli c
 RLC
 
 PDCP decyduje jaki jest sposób przekazu a RLC wykonuje ten sposób.
-
-
 
 MAC decyduje ile bit/s ja wysyłam w powietrzu, ofc przez nagłówek MAC jest to inna wartość niż w RLC.
 
