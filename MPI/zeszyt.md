@@ -2,7 +2,7 @@
 
 - [x] Jaki to system **M/D/n/K**?
 - [ ] Co to jest **sieć Jakcsona**?
-- [ ] Udowodnij, że rozkład wykładniczy jest **rozkładem bezpamięciowym**
+- [x] Udowodnij, że rozkład wykładniczy jest **rozkładem bezpamięciowym**
 - [ ] Wyprowadź zależność na średni czas oczekiwania pakietów obsługiwanych z niższym priorytetem w systemie **M/G/1** z dwoma priorytetami
 - [x] Podaj **metryki** opisujące jakość przekazu pakietów przez sieć
 - [ ] Wyjaśnij czym charakteryzuje się rozkład **pod wykładniczy i nad wykładniczy**
