@@ -85,7 +85,7 @@ Zazwyczaj wyrażane jest jako **parametry statystyczne próby***
 >
 > - Min i Max IPTD wynikają z przepływności łączy, wielkości buforów i długości pakietów
 >
-> - Mean IPTD zależą od przepływności łączy, wielkości buforów, ruchu w sieci i długości pakietów
+> - Mean IPTD zależą od przepływności łączy, wielkości buforów, długości pakietów i <u>ruchu w sieci</u> 
 
 ### 2.2 IP Packet Delay Variation (IPDV)
 
