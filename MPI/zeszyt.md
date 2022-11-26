@@ -6,7 +6,7 @@
 - [ ] Wyprowadź zależność na średni czas oczekiwania pakietów obsługiwanych z niższym priorytetem w systemie **M/G/1** z dwoma priorytetami
 - [x] Podaj **metryki** opisujące jakość przekazu pakietów przez sieć
 - [x] Wyjaśnij czym charakteryzuje się rozkład **pod wykładniczy i nad wykładniczy**
-- [ ] Udowodnij, że strumień wyjściowy w systemie **M/M/1** jest opisany rozkładem Poissona
+- [ ] Udowodnij, że strumień wyjściowy w systemie **M/M/1** jest opisany rozkładem Poissona https://www.dima.unige.it/~riccomag/Teaching/ProcessiStocastici/burke_paper.pdf
 - [ ] Wyprowadź zależność na średni czas oczekiwania w systemie **M/G/1**
 
 # Blok A
@@ -337,7 +337,7 @@ Dystrybuanta `(P(X<ʎ*t))`
 
 Jak ją czytać?
 
-Najpie niebieska dla K=0. Czyli to nami mówi jakie jest p-stwo, że do systemu przyjdzie 0 zadań. Jak widać jak czas mija, to ona spada. No bo to logiczne. I w przypadku 5 sekund, to już jest prawie zerowe p-stwo że nie pojawi się żadne zadanie w systemie.
+Najpierw niebieska dla K=0. Czyli to nami mówi jakie jest p-stwo, że do systemu przyjdzie 0 zadań. Jak widać jak czas mija, to ona spada. No bo to logiczne. I w przypadku 5 sekund, to już jest prawie zerowe p-stwo że nie pojawi się żadne zadanie w systemie.
 
 ### 8.1 Własności
 
@@ -470,6 +470,8 @@ Wychodzi na to, że klienci opuszczają system M/M/1 zgodnie z rozkładem Poisso
 
 //TODO tutaj przeprowadź dowód
 
+![](img/49.png)
+
 Co jest podstawą sieci Jacksona, o której zaraz opowiemy.
 
 ## 13 Sieć Jacksona
@@ -490,14 +492,23 @@ Sieć może być otwarta, czyli klienci napływają do sieć z zewnątrz i wypł
 
 ## 14 Analiza opóźnień w sieci pakietowej
 
-### Rcuh generowany w sieci
+### 14.1 Ruch generowany w sieci
 
 ![](img/45.png)
 
-### Ruch oferowany w sieci
+### 14.2 Ruch oferowany w sieci
 
 ![](img/46.png)
 
-### Średnie opoźnienie
+### 14.3 Średnie opoźnienie
 
 ![](img/47.png)
+
+### 14.4 Problem wyznaczenia przepływności łączy
+
+Tutaj Burak odleciał xd
+
+![](img/48.png)
+
+## 15 M/M/n/k
+
