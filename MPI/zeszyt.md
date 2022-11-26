@@ -89,9 +89,11 @@ Zazwyczaj wyrażane jest jako **parametry statystyczne próby***
 
 ### 2.2 IP Packet Delay Variation (IPDV)
 
+> Inaczej Delay Jitter
+
 Zalecenie ITU-T Y.1540
 
-**Dla danego pakietu** jest zdefiniowane jako różnica IPTD tego pakietu i pewnego pakietu, którego IPTD jest traktowane jako punkt odniesienia. Może być zdefiniowane w odniesieniu do IPTD pierwszego pakietu w strumieniu, najmniejszego IPTD w próbie lub średniego IPTD w próbie
+**Dla danego pakietu** jest zdefiniowane jako różnica IPTD tego pakietu i pewnego pakietu, którego IPTD jest traktowane jako punkt odniesienia. Punktem odniesienia może być IPTD pierwszego pakietu w strumieniu, najmniejsze IPTD w próbie lub średnie IPTD w próbie
 
 **Dla danego zbioru pakietów** to różnica pomiędzy kwantylem rzędu (1-a) rozkładu opóźnienia przekazu pakietów IPTD  `minIPTD` w danym przedziale czasu, np. a=10-3
 
@@ -103,7 +105,7 @@ Zalecenie ITU-T Y.1540
 
 **Dla danego zbioru pakietów** to stosunek liczby pakietów straconych do liczby pakietów wysłanych w danym okresie pomiarowym
 
-Za stracone uznaje się pakiety pomiarowe które nie dotarły do odbiornika przed upływem czasu Tmax (zalecane 3s).
+Za stracone uznaje się pakiety pomiarowe które nie dotarły do odbiornika przed upływem czasu `Tmax` (zalecane 3s).
 
 > **Uwaga -** dla niektórych aplikacji, zbyt duże opóźnienie pakietów uważa się za ich stratę
 
@@ -139,20 +141,21 @@ Metody badawcze:
 Systemy obsługi klasyfikujemy ze względu na opisujące je charakterystki:
 
 - **Napływ klientów do systemu**
-  - `a` w notacji Kendall'a
+  - `A` w notacji Kendall'a
 - **Zachowanie klienta w kolejce** 
   - czy będzie cierpliwie czekał, czy będzie rezygnował 
 - **Czas obsługi klientów przez serwer**
-  - `b` w notacji Kendall'a
-- **Kolejność obsługi klientów**
-  - czy FIFO, czy dzielenie strumieni na priorytety
+  - `B` w notacji Kendall'a
 - **Ilość serwerów obsługi** 
-  - `c` w notacji Kendall'a
+  - `n` w notacji Kendall'a
 - **Pojemność kolejki**
-  - `d` w notacji Kendall'a
+  - `K` w notacji Kendall'a
   - czy kolejka jest nieskonczona, czy skończona 
 - **Liczba klientów korzystających z systemu obsługi**
-  - //TODO nie czaje jeszcze
+  - `S` w notacji Kendall'a
+- **Kolejność obsługi klientów**
+  - czy FIFO, czy dzielenie strumieni na priorytety 
+  - `X` w notacji Kendall'a
 
 ### 3.3 Notacja Kendall'a
 
@@ -178,9 +181,9 @@ Jak można je wypełnić?
 
 - `M` - Markovian -  rozkład czasów między zdarzeniami w Procesie Poissona - rozkład wykładniczy
 
-- `D` - Determinitic - rozkład Stały.
+- `D` - Determinitic - rozkład Stały
 
-- `G` - General - General. Arbitrary distribution of time intervals (may include correlation).
+- `G` - General -  Arbitrary distribution of time intervals (may include correlation).
 
 `n`:
 
@@ -226,7 +229,7 @@ Rozkład prawdopodobieństwa czasów pomiędzy zdarzeniami/punktami w procesie P
 
 <img src="img/10.png" style="zoom:75%;" />
 
-> Funkcja gęstości p-stwa - aka że całka z tej funkcji, obliczona w odpowiednich granicach, jest równa prawdopodobieństwu wystąpienia danego zdarzenia losowego
+> Funkcja gęstości p-stwa - to f-cja, taka że całka z tej funkcji, obliczona w odpowiednich granicach, jest równa prawdopodobieństwu wystąpienia danego zdarzenia losowego
 >
 > Dystrybuanta - funkcja taka, że dla danego parametru `x`, określa p-stwo, ze zmienna losowa dla której jest określona ta dystrybuanta będzie mniejsza od `x`. ===> `F(x) = P(X < x)`
 
@@ -234,10 +237,68 @@ Rozkład prawdopodobieństwa czasów pomiędzy zdarzeniami/punktami w procesie P
 
 ![](img/11.png)
 
-> Czyli jak idziesz na przystanek gdzie autobusy przybywają zgodnie z rozkładem Poissona o λ = 3 minuty, i czekasz już 2 minuty, to kiedy się spodziewać autobusu? Za minutę? No właśnie nie - rozkład nie ma pamięci, więc nie ma nigdzie zapisane, że już mineły 2 minuty i za minutę powinien dać autobus. Cały czas czas oczekiwania na autobus wynosi 3 minuty. Więc jak już czekasz 2 minuty, to autobusu spodziewaj się za 3 minuty.
+> Czyli jak idziesz na przystanek gdzie autobusy przybywają zgodnie z rozkładem Poissona o λ = 3 minuty, i czekasz już 2 minuty, to kiedy się spodziewać autobusu? Za minutę? No właśnie nie - rozkład nie ma pamięci, więc nie ma nigdzie zapisane, że już mineły 2 minuty i za minutę powinien dać autobus. Cały czas, czas oczekiwania na autobus wynosi 3 minuty. Więc jak już czekasz 2 minuty, to autobusu spodziewaj się za 3 minuty.
 >
 > Pomogła mi siostra Ania :smile:
 
 #### Dowód
 
 ![](img/12.jpg)
+
+!!! Tu jest błąd malutki. w ostatniej linijce przed implikacją ostatnia równość powinna być:
+
+```
+1-F(t1) = P(x>t1)
+```
+
+### 5.2 Zmienność rozkładu
+
+#### Wartość średnia/oczekiwana
+
+![](img/12.png)
+
+#### Wariancja
+
+![](img/13.png)
+
+#### Współczynnik zmienności
+
+![](img/14.png)
+
+### 5.3 Inna własność
+
+![](img/15.png)
+
+Burakowi po prostu chodziło o tę własność:
+
+![](img/16.png)
+
+## 6 Rozkłady pod i nad -wykładnicze
+
+### 6.1 Podwykładniczy (hypoexponential)
+
+Inaczej zwany Generalized Erlang Distribution.
+
+Nazwa "pod" się bierze stąd, że *współczynnik zmienności* jest mniejszy od 1 (a wykładniczy ma równy 1).
+
+![](img/17.png)
+
+![](img/18.png)
+
+Czyli jest to po prostu rozkład zmiennej losowej, która jest sumą zmiennych losowych danych rozkładem wykładniczym. 
+
+![](img/19.png)
+
+### 6.2 Nadwykładniczy (hyperexponential)
+
+![](img/20.png)
+
+Czyli mamy kilka zmiennych losowych `Yi` danych rozkładem wykładniczym. i robimy teraz zmienną, która dla każdego `x'a` jest sumą wartości `Y'greków` pomnożonych przez p-stwo ich wystąpięnia. Zauważ, że ciąg `pi` musi się sumować do 1. 
+
+Układ, który prezentuje działanie:
+
+<img src="img/21.png" style="zoom:50%;" />
+
+Nazwa "nad", bo ma *współczynnik zmienności* większy od 1.
+
+![](img/22.png)
