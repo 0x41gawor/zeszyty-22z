@@ -1,26 +1,6 @@
 # MPI 3
 
-W sieci komutacji połączeń to jeden call był zadaniem, a w komutacji pakietów to pakiety.
-
-A jeśli rozważamy chmurę obliczniową to okazuje się, że do niej też liczba żądań jaka przychodzi jest dana rozkładem poissona.
-
-
-
-***
-
-**Rozkład wykładniczy (2)**
-
-Ten dowód może być na kolosie!!!
-
-Rozkład stały ma współczynnik 0
-
-Rozkład wykładniczy ma 1 i on jest taką granicą
-
-Rozkłady <1 nazywamy **podwykładnicze**
-
-Rozkład >1 nazywam **nadwykładnicze**, więc jest on ważny
-
-***
+## 1 wyk slajd 17
 
 są dwa urządzenia
 
@@ -38,15 +18,6 @@ PRZYGOTOWUJĄC SIĘ NA KOLOSA SAMEMU WYPROWADZIĆ WZORY, KTÓRE SA NA SLAJDACH.
 
 ***
 
-**Rozkłady podwykładnicze i nadwykładnicze**
-
-nadwykładniczy ma dużą zmienność, podwykładniczy dąży do stałego.
-
-***
-
-Nie sluchałem długo
-
-****
 
 **Proces poissona (1)**
 
@@ -68,15 +39,6 @@ Zmiennośc oznacza, że jeśli patrzyymy na system to w pewnym momencie moze prz
 
 ***
 
-**Wzór Littla**
-
-niby prosty wzor a jego pierwszy dowód byl na 10 stron
-
-***
-
-**Wzór na p-stwo straty**
-
-ro - ruch - napływ * czas obsługi
 
 **co chciałbym zebyście znali**
 

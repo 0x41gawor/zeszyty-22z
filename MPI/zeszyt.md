@@ -1,11 +1,11 @@
 # Co będzie na kolosie
 
 - [x] Jaki to system **M/D/n/K**?
-- [ ] Co to jest **sieć Jakcsona**?
+- [x] Co to jest **sieć Jakcsona**?
 - [x] Udowodnij, że rozkład wykładniczy jest **rozkładem bezpamięciowym**
 - [ ] Wyprowadź zależność na średni czas oczekiwania pakietów obsługiwanych z niższym priorytetem w systemie **M/G/1** z dwoma priorytetami
 - [x] Podaj **metryki** opisujące jakość przekazu pakietów przez sieć
-- [ ] Wyjaśnij czym charakteryzuje się rozkład **pod wykładniczy i nad wykładniczy**
+- [x] Wyjaśnij czym charakteryzuje się rozkład **pod wykładniczy i nad wykładniczy**
 - [ ] Udowodnij, że strumień wyjściowy w systemie **M/M/1** jest opisany rozkładem Poissona
 - [ ] Wyprowadź zależność na średni czas oczekiwania w systemie **M/G/1**
 
@@ -302,3 +302,202 @@ Układ, który prezentuje działanie:
 Nazwa "nad", bo ma *współczynnik zmienności* większy od 1.
 
 ![](img/22.png)
+
+### 6.3 Zestawienie
+
+Nadwykładniczy ma dużą zmienność, podwykładniczy dąży do stałego.
+
+Rozkład stały ma *współczynnik zmienności* równy 0.
+
+
+
+## 7 Ograniczenia na wartość kwantylu rozkładu
+
+### 7.1 Ograniczenie Markova
+
+![](img/23.png)
+
+> To używamy gdy znamy jedynie wartość oczekiwaną
+
+### 7.2 Ograniczenie Czebyszewa
+
+![](img/24.png)
+
+> To używamy gdy znam wartość oczekiwaną i wariancję rozkładu
+
+## 8 Proces Poissona
+
+>  Opis w [rodziale 4](#4-proces-poissona), który był wstępem do rozkładów wykładniczych itp.. Ten rozdział przedstawia opis matematyczny i właściwości.
+
+![](img/25.png)
+
+<img src="img/28.png" style="zoom:75%;" />
+
+Dystrybuanta `(P(X<ʎ*t))`
+
+Jak ją czytać?
+
+Najpie niebieska dla K=0. Czyli to nami mówi jakie jest p-stwo, że do systemu przyjdzie 0 zadań. Jak widać jak czas mija, to ona spada. No bo to logiczne. I w przypadku 5 sekund, to już jest prawie zerowe p-stwo że nie pojawi się żadne zadanie w systemie.
+
+### 8.1 Własności
+
+- Suma dwóch rozkładów Poissona o parametrach  `ʎ1` i `ʎ2` jest rozkładem Poissona o parametrze `ʎ1+ʎ2`.
+  - ![](img/26.png)
+
+- Proces Poissona o parametrze `ʎ1+ʎ2` rozdziela się na dwa strumienie Poissona o parametrach `ʎ1` i `ʎ2` , jeżeli przynależność do poszczególnych strumieni losujemy z prawdopodobieństwami: `ʎ1/(ʎ1+ʎ2)` , `ʎ2/(ʎ1+ʎ2)`.
+  - ![](img/27.png)
+
+- Jeżeli przychodzi zadanie do systemu zgodnie z rozkładem Poissona, wówczas zastaje system w stanie losowym (jak wynika z rozkładu prawdopodobieństwa występowania stanów) – stąd PASTA (*Poisson* *Arrivals* *See* *Time* *Averages*)
+  - Arrival Theorem
+    - "Upon arrival at a station, a job observes the system as if in steady state at an arbitrary instant for the system without that job"
+    - "W momencie przybycia, job widzi system tak samo jak w stanie ustalonym w danej chwili czasowej bez job'a"
+  - Arrival Theorem for Poisson process
+    - "The probability of the state as seen by an outside random observer is the same as the probability of the state seen by an arriving customer".
+    - "P-stwo obserwacji danego stanu systemu przez zewnętrznego obserwatora jest takie samo jak p-stwo obserwacji tego stanu przez przybywające do systemu klienta"
+
+### 8.2 Zmienność
+
+#### Wartość średnia
+
+![](img/29.png)
+
+#### Wariancja
+
+![](img/30.png)
+
+#### Współczynnik zmienności
+
+![](img/31.png)
+
+## 9 Prawo Little'a
+
+<img src="img/32.png" style="zoom:150%;" />
+
+N - long-term average of customers currently residing in the system
+
+ʎ - long-term average rate of arrival
+
+T - long-term average time that client spends in a system
+
+## 10 Wzór na p-stwo straty
+
+W systemach gdzie klient jest odrzucany, gdy nie ma dla niego serwera obsługi
+
+![](img/33.png)
+
+
+
+## 11 Systemy obsługi
+
+Plan:
+
+- System z oczekiwaniem M/M/1 
+
+  - Proces Markowa
+
+  - Sieci Jacksona
+
+- System ze stratami M/M/n/n 
+  - wzór Erlanga
+
+- System M/G/1
+
+- System M/G/1 z priorytetami 
+
+## 12 M/M/1
+
+- Jeden serwer obsługi
+- Nieskończona liczba w kolejce
+- Queue Discipline: FIFO
+- Klienci przychodzą do systemu zgodnie z rozkładem Poissona z parametrem λ
+- Czas obsługi każdego klienta jest dany rozkładem wykładniczym z parametrem µ
+
+![](img/34.png)
+
+### 12.1 Procesy Markova
+
+Ten zbiór własności wynika z tego, że system M/M/1 spełnia proces Markova
+
+- System może być jedynie w jednym ze stanów k, k=0,1,2…
+  - Stan systemu to między innymi liczba klientów w nim. I to nie może być np. `1.2` klienta. Po `1 klient` sąsiednie stany to `0 klientów` lub `2 klientów` - nie ma nic pośrodku.
+
+- System może przejść z jednego stanu jedynie do stanu sąsiedniego , np. ze stanu k do stanu k+1
+  - Po `1 klient` sąsiednie stany to `0 klientów` lub `2 klientów`. Na raz nie może przyjść dwóch klientów - tylko jeden.
+
+- Prawdopodobieństwo przejścia z danego stanu do stanu sąsiedniego zależy jedynie od tego stanu a nie od przeszłości
+  - Układ bezpamięciowy
+
+- Czas przebywania w danym stanie dany jest rozkładem wykładniczym
+
+- Proces Markowa z czasem ciągłym oznacza, że przejście z danego stanu do stanu sąsiedniego może się odbyć w dowolnej chwili 
+  - Z czasem dyskretnym by było, że tylko w określonych chwilach
+
+![](img/37.png)
+
+### 12.2 Własności 
+
+Spróbujmy policzyć ile jest średnio klientów w systemie. Żeby potem przeszktałcić prawo Little'a i wiedzieć jaki jest *średni czas przebywania klientów w systemie*.
+
+![](img/35.png)
+
+No to dajmy ile jest klientów w chwili, gdy `t` dąży do nieskończoności, czyli symulacja trwa już bardzo długo, że to już się ustaliło (stan ustalony, stacjonarny).
+
+![](img/36.png)
+
+Z czego to wynika?
+
+![](img/38.png)
+
+Gdzie `ρ` to obciążenie systemu. 
+
+Czyli liczba klientów w systemie jest dana ciągiem geometrycznym. Ze wzorów na ciąg geometryczny wychodzi nam zatem **średnia liczba klientów w systemie**.
+
+![](img/39.png)
+
+Przekształcamy teraz prawo Little'a, żeby wyszło nam **średni czas przebywania klienta w systemie**
+
+![](img/40.png)
+
+I na koniec **średni czas oczekiwania**. Czyli mnożymy czas spędzony w systemie przez zajętość serwera. Co jest logiczne. Zajętość serwera, to liczba od 0 do 1 - i mówi, że przez tyle procent czasu serwer jest zajęty, więc jak klient spędza w systemie T czasu to `ρ` procent tego czasu spędza w kolejce.
+
+![](img/41.png)
+
+### 12.3 Strumień wyjściowy
+
+![](img/42.png)
+
+Wychodzi na to, że klienci opuszczają system M/M/1 zgodnie z rozkładem Poissona.
+
+//TODO tutaj przeprowadź dowód
+
+Co jest podstawą sieci Jacksona, o której zaraz opowiemy.
+
+## 13 Sieć Jacksona
+
+Sieć Jacksona składa się z `M` węzłów, gdzie każdy węzeł reprezentuje jeden system M/M/1.
+
+Klienci (zadania/jobs) podróżują między węzłami na podstawie ustalonych tablic rutingu.
+
+Queing discpline w każdym węźle to FIFO.
+
+Sieć może być otwarta, czyli klienci napływają do sieć z zewnątrz i wypływają z niej na zewnątrz.
+
+![](img/43.png)
+
+
+
+![](img/44.png)
+
+## 14 Analiza opóźnień w sieci pakietowej
+
+### Rcuh generowany w sieci
+
+![](img/45.png)
+
+### Ruch oferowany w sieci
+
+![](img/46.png)
+
+### Średnie opoźnienie
+
+![](img/47.png)
