@@ -261,8 +261,6 @@ Był kolos
 
 # Air Interface
 
-
-
 ## Intro
 
 Dzisiaj popatrzymy na Air Interface.
@@ -317,8 +315,6 @@ Skoro widać te wartswy oraz na nich działające protokoły to zdefiniujmy sobi
   - zleca robienia pomiarów UE (do handoveru i do lokalizowania UE), zeby wiedziec jaką moc trzeba nadawać (jak UE blizej stacji to mozna zmniejszyc moc)
   - handover and interRAT handover 
   - wie gdzie forwardować NAS
-
-
 
 > RRC to serwis point, który kontroluje wszystko co sie dzieje w antenie, jest to punkt kontaktowy z corem, core wysyła na niego komendy jak co robić.
 >

@@ -6,7 +6,7 @@
 - [ ] Wyprowadź zależność na średni czas oczekiwania pakietów obsługiwanych z niższym priorytetem w systemie **M/G/1** z dwoma priorytetami
 - [x] Podaj **metryki** opisujące jakość przekazu pakietów przez sieć
 - [x] Wyjaśnij czym charakteryzuje się rozkład **pod wykładniczy i nad wykładniczy**
-- [ ] Udowodnij, że strumień wyjściowy w systemie **M/M/1** jest opisany rozkładem Poissona https://www.dima.unige.it/~riccomag/Teaching/ProcessiStocastici/burke_paper.pdf
+- [x] Udowodnij, że strumień wyjściowy w systemie **M/M/1** jest opisany rozkładem Poissona 
 - [ ] Wyprowadź zależność na średni czas oczekiwania w systemie **M/G/1**
 
 # Blok A
@@ -466,13 +466,37 @@ I na koniec **średni czas oczekiwania**. Czyli mnożymy czas spędzony w system
 
 ![](img/42.png)
 
-Wychodzi na to, że klienci opuszczają system M/M/1 zgodnie z rozkładem Poissona.
 
-//TODO tutaj przeprowadź dowód
 
-![](img/49.png)
+#### Dowód
 
-Co jest podstawą sieci Jacksona, o której zaraz opowiemy.
+Rozważmy system M/M/1 o ʎ = 1/2 i µ = 1. Czyli klienci pojawiają się średnio co 2 sekundy a serwer obsługuje ich w sekundę. Dla uproszczenia dajmy, że wariancja rozkładu jest 0 (no ja wiem, że to przeczy założeniom xd).
+
+Jak opiszemy rozkład który dzieję się na wyjściu?
+
+W momentach, w których kolejka jest niepusta (Busy period) i serwer jest non-stop busy pakiety opuszczają system co sekundę. Czyli przez rozkład wykładniczy z parametrem µ.
+
+W momentach, w których kolejka jest pusta (Non-busy period) najpierw musimy "poczekać" aż przyjdzie pakiet a potem odczekać "one service time".  Czyli tak jakby co 3 sekundy.
+
+Wiemy też, że Busy -period występuje `ρ` procent czasu, a Non-busy period `(1-ρ)` procent czasu.
+
+Nie wiem jak to zapisywane jest w dziedzinie czasu, ale transformata Laplace'a tej funkcji to:
+
+![](img/50.png)
+
+Co wydaje się sensowne, bo pierwszy człon (Busy period) to sam rozkład `µ`, a drugi człon (Non-busy period) to rozkład `ʎ` (czekanie aż przyjdzie klient) i rozkład `µ` (jego obsługa).
+
+Po wymnożeniu nawiasu i uproszczeniu wychodzi nam taka postać transformaty `(LD(s))`
+
+<img src="img/49.png" style="zoom: 150%;" />
+
+,która (ja nie wiem jak) przechodzi na taką funkcję w dziedzinie czasu `D(t)`. 
+
+A taka funkcja to nic innego jak gęstość rozkładu wykładniczego :smiley: (==> czyli proces Poissona)
+
+
+
+Wychodzi na to, że klienci opuszczają system M/M/1 zgodnie z rozkładem Poissona. Co jest podstawą sieci Jacksona o których za chwilę...
 
 ## 13 Sieć Jacksona
 
@@ -485,8 +509,6 @@ Queing discpline w każdym węźle to FIFO.
 Sieć może być otwarta, czyli klienci napływają do sieć z zewnątrz i wypływają z niej na zewnątrz.
 
 ![](img/43.png)
-
-
 
 ![](img/44.png)
 
