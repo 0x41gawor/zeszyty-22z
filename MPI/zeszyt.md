@@ -9,6 +9,14 @@
 - [x] Udowodnij, że strumień wyjściowy w systemie **M/M/1** jest opisany rozkładem Poissona 
 - [ ] Wyprowadź zależność na średni czas oczekiwania w systemie **M/G/1**
 
+Tematy z M/G/1 olewam* - najwyżej mi się trafi jedno pytanie z tego, więc lepiej już zrobić assert, że resztę umiem na 100%.
+
+*Burak to jebany śmieć i te kurwa jego slajdy moze sobie w dupe wsadzić, nie ma nigdzie tego jego opisu M/G/1, literatury nie ma podanej, nie ma nic wyjaśnione, nie da się tego zrozumieć**, , a nie będe zakuwał na pamięć, bo kurwa nie od tego tutaj na ziemi jestem.
+
+**wymyślenie własnej teorii, który mi to wyjaśni to kilka h
+
+Tak jak on kurwa robi, to tak się nie uprawia nauki (pomylone oznaczenia, zero wyjaśnień, zero bibliografii) ja jebix ale mam wkurw xD Burak chuju jebany dostajesz statuetke pierwszego człowieka, który wyprowadził mnie z równowagi płci męskiej.
+
 # Blok A
 
 ## Co będzie
