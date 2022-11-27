@@ -179,7 +179,7 @@ Jak można je wypełnić?
 
 `A i B`:
 
-- `M` - Markovian -  rozkład czasów między zdarzeniami w Procesie Poissona - rozkład wykładniczy
+- `M` - Markovian -  rozkład czasów między zdarzeniami taki jak w Procesie Poissona - rozkład wykładniczy
 
 - `D` - Determinitic - rozkład Stały
 
@@ -231,13 +231,13 @@ Rozkład prawdopodobieństwa czasów pomiędzy zdarzeniami/punktami w procesie P
 
 > Funkcja gęstości p-stwa - to f-cja, taka że całka z tej funkcji, obliczona w odpowiednich granicach, jest równa prawdopodobieństwu wystąpienia danego zdarzenia losowego
 >
-> Dystrybuanta - funkcja taka, że dla danego parametru `x`, określa p-stwo, ze zmienna losowa dla której jest określona ta dystrybuanta będzie mniejsza od `x`. ===> `F(x) = P(X < x)`
+> Dystrybuanta - funkcja taka, że dla danego parametru `t`, określa p-stwo, ze zmienna losowa dla której jest określona ta dystrybuanta będzie mniejsza od `t`. ===> `Fx(t) = P(X < t)`
 
 ### 5.1 Bezpamięciowość
 
 ![](img/11.png)
 
-> Czyli jak idziesz na przystanek gdzie autobusy przybywają zgodnie z rozkładem Poissona o λ = 3 minuty, i czekasz już 2 minuty, to kiedy się spodziewać autobusu? Za minutę? No właśnie nie - rozkład nie ma pamięci, więc nie ma nigdzie zapisane, że już mineły 2 minuty i za minutę powinien dać autobus. Cały czas, czas oczekiwania na autobus wynosi 3 minuty. Więc jak już czekasz 2 minuty, to autobusu spodziewaj się za 3 minuty.
+> Czyli jak idziesz na przystanek gdzie autobusy przybywają zgodnie z rozkładem Poissona co λ = 3 minuty, i czekasz już 2 minuty, to kiedy się spodziewać autobusu? Za minutę? No właśnie nie - rozkład nie ma pamięci, więc nie ma nigdzie zapisane, że już mineły 2 minuty i za minutę powinien dać autobus. Cały czas, czas oczekiwania na autobus wynosi 3 minuty. Więc jak już czekasz 2 minuty, to autobusu spodziewaj się za 3 minuty.
 >
 > Pomogła mi siostra Ania :smile:
 
@@ -309,8 +309,6 @@ Nadwykładniczy ma dużą zmienność, podwykładniczy dąży do stałego.
 
 Rozkład stały ma *współczynnik zmienności* równy 0.
 
-
-
 ## 7 Ograniczenia na wartość kwantylu rozkładu
 
 ### 7.1 Ograniczenie Markova
@@ -337,7 +335,7 @@ Dystrybuanta `(P(X<ʎ*t))`
 
 Jak ją czytać?
 
-Najpierw niebieska dla K=0. Czyli to nami mówi jakie jest p-stwo, że do systemu przyjdzie 0 zadań. Jak widać jak czas mija, to ona spada. No bo to logiczne. I w przypadku 5 sekund, to już jest prawie zerowe p-stwo że nie pojawi się żadne zadanie w systemie.
+Najpierw niebieska dla K=0. Czyli to nami mówi jakie jest p-stwo, że do systemu przyjdzie 0 zadań. Jak widać, jak czas mija, to ona spada. No bo to logiczne. I w przypadku 5 sekund, to już jest prawie zerowe p-stwo że nie pojawi się żadne zadanie w systemie.
 
 ### 8.1 Własności
 
@@ -373,7 +371,7 @@ Najpierw niebieska dla K=0. Czyli to nami mówi jakie jest p-stwo, że do system
 
 <img src="img/32.png" style="zoom:150%;" />
 
-N - long-term average of customers currently residing in the system
+N - long-term average count of customers currently residing in the system
 
 ʎ - long-term average rate of arrival
 
@@ -385,7 +383,7 @@ W systemach gdzie klient jest odrzucany, gdy nie ma dla niego serwera obsługi
 
 ![](img/33.png)
 
-
+> To logiczne. P-stwo straty jest takie samo jak to, że serwer jest zajęty - czyli `ρ`, ale Burak robi specjalnie pod górkę.
 
 ## 11 Systemy obsługi
 
@@ -407,27 +405,30 @@ Plan:
 ## 12 M/M/1
 
 - Jeden serwer obsługi
-- Nieskończona liczba w kolejce
+- Nieskończona liczba miejsc w kolejce
 - Queue Discipline: FIFO
 - Klienci przychodzą do systemu zgodnie z rozkładem Poissona z parametrem λ
 - Czas obsługi każdego klienta jest dany rozkładem wykładniczym z parametrem µ
 
 ![](img/34.png)
 
+> Ten wzór jest izi. Dajmy, że ʎ = 1/2 i µ = 1. Czyli klienci przybywają co 2 sekundy i jeden obsłużony jest co sekundę (średnio w makroskali, ja tu upraszczam). Czyli przyszedł klient w sekundzie 0, serwer wziął go do obsługi co trwało sekundę i potem aż do drugiej sekundy nic się nie dzieje. Czyli w tym interwale serwer przez 1s obsługiwał, a przez 1s nie. ==> czyli był zajęty 50% czasu. Potem w 2s znowu przyjdzie pakiet i akcja się powtarza. I tak K***A do za**bania.
+
 ### 12.1 Procesy Markova
 
-Ten zbiór własności wynika z tego, że system M/M/1 spełnia proces Markova
+Ten zbiór własności wynika z tego, że system M/M/1 jest możliwy do opisania poprzez proces Markova
 
 - System może być jedynie w jednym ze stanów k, k=0,1,2…
-  - Stan systemu to między innymi liczba klientów w nim. I to nie może być np. `1.2` klienta. Po `1 klient` sąsiednie stany to `0 klientów` lub `2 klientów` - nie ma nic pośrodku.
+  - Stan systemu to między innymi liczba klientów w nim. I to nie może być np. `1.2` klienta. Po `1 klient` sąsiednie stany to `0 klientów` lub `2 klientów` - nie ma nic pomiędzy. 
 
 - System może przejść z jednego stanu jedynie do stanu sąsiedniego , np. ze stanu k do stanu k+1
   - Po `1 klient` sąsiednie stany to `0 klientów` lub `2 klientów`. Na raz nie może przyjść dwóch klientów - tylko jeden.
 
-- Prawdopodobieństwo przejścia z danego stanu do stanu sąsiedniego zależy jedynie od tego stanu a nie od przeszłości
+- Prawdopodobieństwo przejścia z danego stanu do stanu sąsiedniego zależy jedynie od akutalnego stanu a nie od przeszłości
   - Układ bezpamięciowy
 
 - Czas przebywania w danym stanie dany jest rozkładem wykładniczym
+  - Tak, bo stan systemu opisuje liczba klientów, a skoro przybywają i opuszczają oni system zgodnie z rozkładem wykładniczym oraz (z własności Poissona) suma tych rozkładów też daje wykładniczy, no to ten ... zgadza się
 
 - Proces Markowa z czasem ciągłym oznacza, że przejście z danego stanu do stanu sąsiedniego może się odbyć w dowolnej chwili 
   - Z czasem dyskretnym by było, że tylko w określonych chwilach
@@ -470,11 +471,11 @@ I na koniec **średni czas oczekiwania**. Czyli mnożymy czas spędzony w system
 
 #### Dowód
 
-Rozważmy system M/M/1 o ʎ = 1/2 i µ = 1. Czyli klienci pojawiają się średnio co 2 sekundy a serwer obsługuje ich w sekundę. Dla uproszczenia dajmy, że wariancja rozkładu jest 0 (no ja wiem, że to przeczy założeniom xd).
+Rozważmy system M/M/1 o ʎ = 1/2 i µ = 1. Czyli klienci pojawiają się średnio co 2 sekundy a serwer obsługuje ich w sekundę. Dla uproszczenia wyobraźmy sobie, że wariancja rozkładu jest 0 (no ja wiem, że to przeczy założeniom xd, ale chodzi mi o to, że w makroskali).
 
 Jak opiszemy rozkład który dzieję się na wyjściu?
 
-W momentach, w których kolejka jest niepusta (Busy period) i serwer jest non-stop busy pakiety opuszczają system co sekundę. Czyli przez rozkład wykładniczy z parametrem µ.
+W momentach, w których kolejka jest niepusta (**Busy period**) i serwer jest non-stop busy pakiety opuszczają system co sekundę. Czyli rozkład wykładniczy z parametrem µ.
 
 W momentach, w których kolejka jest pusta (Non-busy period) najpierw musimy "poczekać" aż przyjdzie pakiet a potem odczekać "one service time".  Czyli tak jakby co 3 sekundy.
 
@@ -492,7 +493,7 @@ Po wymnożeniu nawiasu i uproszczeniu wychodzi nam taka postać transformaty `(L
 
 ,która (ja nie wiem jak) przechodzi na taką funkcję w dziedzinie czasu `D(t)`. 
 
-A taka funkcja to nic innego jak gęstość rozkładu wykładniczego :smiley: (==> czyli proces Poissona)
+A taka funkcja (w sensie to `D(t)`) to nic innego jak gęstość rozkładu wykładniczego :smiley: (==> czyli proces Poissona)
 
 
 
@@ -532,5 +533,51 @@ Tutaj Burak odleciał xd
 
 ![](img/48.png)
 
-## 15 M/M/n/k
+## 15 M/M/n/k - systemy ze stratami
+
+![](img/51.png)
+
+- Klienci przybywają zgodnie z rozkładem Poissona z parametrem `ʎ`
+- Każdy klient żąda jeden serwer obsługi
+
+- Czas obsługi klienta jest dany rozkładem wykładniczym z parametrem `µ`
+- Jeżeli klient przybędzie do systemu i nie ma wolnego serwera obsługi, to klient jest tracony
+
+### 15.1 Stan systemu
+
+Stan systemu określony jest przez liczbę klientów.
+
+![](img/52.png)
+
+> Zauważ ze system równocześnie obsługuje kilku klientów, więc jak przyjdzie klient do systemu gdzie już jest jeden, czyli stan obecny systemu to 2 klienci, to szansa ze zaraz stan zmieni się o jeden w dół jest dwukrotnie większa, bo system obsługuje dwóch klientów naraz. 
+>
+> Dlatego powroty o stan niżej dzieją się szybciej.
+>
+> Przykład  ʎ = 1 i µ = 1. Mamy stan=1. W tym stanie możliwe, że zaraz (z rozkładem `µ`) serwer zakończy obsługę tego jednego klienta i system wróci do stanu 0. Jak teraz do systemu wbije klient, to stan się zwiększy na `2`, ale ten klient od razu jest obsługiwany, więc teraz system równolegle obsługuje dwóch klientów, czyli z rozkładem `2µ`. 
+
+### 15.2 P-stwa na stany
+
+Chcemy wyznaczyć wzór, na p-stwo, że system znajduje się w danym stanie.
+
+![](img/53.png)
+
+### 15.3 P-stwo straty
+
+![](img/54.png)
+
+## 16 System M/G/1
+
+![](img/56.png)
+
+
+
+### 16.1 Z priorytetami
+
+![](img/57.png)
+
+![](img/58.png)
+
+Czyli jak widać korzystamy ze wzoru na górze i wychodzi nam czas obsługi strumienia `i=1`, na który składa się średni czas czekania w kolejce klientów ze strumienia `i=1` oraz resztkowy czas obsługi wszystkich strumieni.
+
+Jeśli chodzi o strumień `i=2` to tu mamy czas czekania w kolejce klientów ze strumieni `i=1` oraz `i=2` napływ (ten iloczyn z `W2`) do kolejki strumienia `2` (w `i=1` tego nie było, bo one nie czekały tylko odrazu do obsługi) oraz również resztkowy czas obsługi innych strumieni.
 
