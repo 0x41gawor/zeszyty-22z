@@ -302,16 +302,16 @@ Skoro widać te wartswy oraz na nich działające protokoły to zdefiniujmy sobi
 
 **Radio Resource Control** - protocol used in 5G on the Air Interface between UE and gNodeB. Specified in TS 38.331. RRC messages are trasnported via PDCP-messages. The major functions include:
 
-- connection Establishment and connection Release (connection na kanale logicznym timeslotowym)
-- broadcast of system information
+- **connection Establishment and connection Release** (ale jaki connection? RRC connection?)
+- **broadcast of system information**
   - np. info synchronizacyjne (ustalanie jak wysylac i co wysylac w jakich slotach czasowych)
   - czy jest standalone czy non-standalone (czy dwa interfejsy radiowe czy nie (dual connectivity)), czy bedziemy używac carrier aggregation
   - czy bedzie szyfrowanie i jakie
-- paging notification
+- **paging notification**
   - wysyłanie na broadcastowy kanał, "ktoś chce sesje z tą komórką" i UE się odzywa "to ja"
-- radio bearer establishment, reconfiguration and release (dedykowany bearer dla UE na coś tam)
+- **radio bearer establishment, reconfiguration and release** (dedykowany bearer dla UE na coś tam)
   -  (service radio bearer SDR i Data radio bearer) (ale to core daje info o QoS Flow w SDAP jakie ma być)
-- RRC connection mobility procedures
+- **RRC connection mobility procedures**
   - zleca robienia pomiarów UE (do handoveru i do lokalizowania UE), zeby wiedziec jaką moc trzeba nadawać (jak UE blizej stacji to mozna zmniejszyc moc)
   - handover and interRAT handover 
   - wie gdzie forwardować NAS
@@ -339,7 +339,7 @@ Stany RRC w jakich może być UE z danym gNodeB:
 
 **Service Data Adaptation Protocol** - introduced in 5G. Maps **Qos Flow IDs** to **Radio Bearers**. The SDAP layer is configured by the RRC.
 
-Jak UE rozpocznie *PDU session*, to SMF wymyśli dla niej *Qos Flow ID*, które w 5G jest najmniejszą jednostką, która w core decyduje o jakoście przekazu danych. 
+Jak UE rozpocznie *PDU session*, to SMF wymyśli dla niej *Qos Flow ID*, które w 5G jest najmniejszą jednostką, która w core decyduje o jakości przekazu danych. 
 
 > W LTE core zlecał RAN'owi bezpośredno jaki ma zrobić bearer (tym się zajmował protokół PDCP, który w 5G jest nieco copy&paste z 4G). Jedyna więc funkcja SDAP, to mapowanie QoS Flow, które umie core, na Radio Bearer, które umie PDCP. 
 
@@ -398,7 +398,7 @@ Na jedną *PDU session* tworzone jest jedno *SDAP entity*. Czym można je skonfi
   - do szyfrowania pakietów używany jest nie tylko `kenc` ale też i `seqNum` 
   -  dajemy jeszcze sequence number, i dzieki temu kazdy pakiet jest szyfrowany innym kluczem, zeby nikt inny (kto nie wie jaki jest seq. num. ) nie bedzie wstanianie wysyłać mi ten pakiet, nawet jesli wie ten KLUCZ (**K**)
 
-- PDCP PDU discards TODO????
+- PDCP PDU discards xd Jordi łeb ze to napisał 
 
 - PDCP PDU routing in dual connectivity: split/non split (1,2 or 4 RLC entities per PDCP TODO????
 
@@ -419,6 +419,8 @@ Na jedną *PDU session* tworzone jest jedno *SDAP entity*. Czym można je skonfi
 
 ![](img/11.png)
 
+> Zwróć uwagę na nazwę protokołu. 'Convergence - the act of converging and especially moving toward union or uniformity'. Zauważ, że jest to najwyższa warstwa w Plane-Idependent, więc PDCP po prostu daje dla UP i CP usługę wysyłania danych w formie pakietów.
+
 #### RLC
 
 > PDCP decyduje jaki jest sposób przekazu a RLC wykonuje ten sposób
@@ -434,7 +436,7 @@ Functionalities:
   - UM UnAck
   - TM - Transparent
 - Reaseembly window for segmentation
-  - MAC wysyła dane w chunkach (bo to ostatnia warstwa przed zamianą na sygnał ele), więc to co trzeba mu dać to takie chunki. RLC właśnie musi zrobić te chunki. Chunki mają określony rozmiar np 64. Co jeśli dostaniemy od PDCP dwa pakiety po 20? Trochę głupi je wysyłać w oddzielnych MAC PDU (chunki), bo tracimy ok 70% przestrzeni, więc RLC składa oba te PDCP PDU w jeden pakiet i przekazuje do MAC. To się nazywa **konkatencja** - analogicznie podział PDCP PDU na mniejsze, bo jeden się nie mieści to **segmentacja**. W LTE było i to i to, ale 5G z racji nacisku na latency odrzuca konkatenacje (bo jak dostanie się małe PDCP PDU, to trzeba czekać na następne małe).
+  - MAC wysyła dane w chunkach (bo to ostatnia warstwa przed zamianą na sygnał ele), więc to co trzeba mu dać to takie chunki. RLC właśnie musi zrobić te chunki. Chunki mają określony rozmiar np 64. Co jeśli dostaniemy od PDCP dwa pakiety po 20? Trochę głupio je wysyłać w oddzielnych MAC PDU (chunki), bo tracimy ok 70% przestrzeni, więc RLC składa oba te PDCP PDU w jeden pakiet i przekazuje do MAC. To się nazywa **konkatencja** - analogicznie podział PDCP PDU na mniejsze, bo jeden się nie mieści to **segmentacja**. W LTE było i to i to, ale 5G z racji nacisku na latency odrzuca konkatenacje (bo jak dostanie się małe PDCP PDU, to trzeba czekać na następne małe).
 - Operacje na RLC header takie jak:
   - Zapisanie bitu `D` lub `C` - Data czy Control, dlaczego to zapisujemy? Bo w segmentacji tracimy info o DRB itp
   - Polling - 1 bit, który mówi czy ma potwierdzać czy ten pakiet przyszedł czy nie (ARQ)
@@ -456,17 +458,23 @@ Opis z wikipedii mi się mega podoba https://en.wikipedia.org/wiki/Radio_Link_Co
 
 Functionalties:
 
-- Mapowanie kanałów logicznych na transportowe
+- **Mapowanie kanałów logicznych na transportowe**
 
-- multiplexing of MAC SDUs from one or different logical channels onto transport blocks (TB) to be delivered to the physical layer on transport channels; 
+  - multiplexing of MAC SDUs from one or different logical channels onto transport blocks (TB) to be delivered to the physical layer on transport channels; 
 
-- Inbdand monitoring, MAC w UE co jakiś czas wysyła info odnośnie moc sygnału, synchronizacja itp.
+- **Inbdand monitoring**, 
 
-- Uplink channel prioritatization .. - MAC w UE wysyła jak ważny jest ten pakiet, zeby antena jak nie moze obsluzyc wszystkiego w uplink, to zeby miala priorytety jakieś do decyzji
+  - MAC w UE co jakiś czas wysyła info odnośnie moc sygnału, synchronizacja itp.
 
-- Uplink time alignment - między antena i UE może byc kilka km, więc droga propagacji już może wpływać na synchronizacje, (światło leci z `c`). Więc antena patrzy jaka jest moc sygnału RSRP i oczacowuje jak daleko UE jest od anteny i UE wtedy wysyła trochę wcześniej niż ma timeslot dany. 
+- **Uplink channel prioritatization** 
 
-- HARQ: MAC ma też swój mechanizm ARQ no bo najwięcej pakietów sie traci w kolejkach do MAC'a, a nie w powietrzu :o 
+  - MAC w UE wysyła jak ważny jest ten pakiet, zeby antena jak nie moze obsluzyc wszystkiego w uplink, to zeby miala priorytety jakieś do decyzji
+
+- **Uplink time alignment** 
+
+  - między antena i UE może byc kilka km, więc droga propagacji już może wpływać na synchronizacje, (światło leci z `c`). Więc antena patrzy jaka jest moc sygnału RSRP i oczacowuje jak daleko UE jest od anteny i UE wtedy wysyła trochę wcześniej niż ma timeslot dany. 
+
+- **HARQ**: MAC ma też swój mechanizm ARQ no bo najwięcej pakietów sie traci w kolejkach do MAC'a, a nie w powietrzu :o 
 
   - > Bo to tak jest, że własnie kolejka do MAC'a traci najwięcej pakietów, bo dopiero wtedy się okazuje czy medium (powietrze) jest w stanie przesyłać co mu się narzuci 
 
@@ -509,10 +517,6 @@ Functionalties:
 >
 >Ale BER to nie tylko powietrze ale też ze nie procesujemy wystarczająco szybko tego wiadra, więc mamy dwa błędy medium oraz process
 
-Tu masz pięknie co to jest kanał transportowy a co to logiczny
-
-![image-20221128194134779](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20221128194134779.png)
-
 ## Warstwa fizyczna
 
 ### Ocb z tymi kanałami?
@@ -550,11 +554,10 @@ Są trzy typy kanałów w 5G:
 - **logiczne** 
   - Oferowane przez MAC dla RLC
   - Mówią "what is carried"
-  - RLC je tworzy, przekazuje do MAC, a MAC mapuje je na ("swoje") transportowe 
+  - RLC to co ma do wysłania to wkłada w kanały logiczne oferowane przez MAC (MAC wystawia pojemniki a RLC wkłada tam treść, odpowiedniego typu do odpowiedniego pojemnika)
 - **transportowe**
   - Oferowane przez PHY dla MAC
   - Mówią "how it is carried"
-  - MAC je tworzy i przekazuje do PHY
 - **fizyczne**
   - Tutaj jak już PHY dostanie kanały trasnportowe od MAC to mapuje je na fizyczne
   - Mówią "how pack it into timeslots"
@@ -590,6 +593,8 @@ Dobra, jazda:
 ### Kanały transportowe
 
 Logiczne stanowiły taki logiczny podział, do czego dany pakiet będzie potrzebny ale tak górnolotnie. Tutaj nadal jest podział do czego dany pakiet będzie potrzebny ale tak warstwę niżej. Zauważ, np. że tu już znika pojęcie control i user plane, ta warstaw nie rozumie tego podziału. 
+
+Tutaj pakujemy pakiety, które mają wspólne cechy "transportowo".
 
 Niektóre da się zawezić inne rzeczy nie da się. Takie coś jak broadcast info systemowe czy paging to musi mieć zapewniony byt, więc nie wclicza się do współdzielonej puli. A reszta rzeczy jak sygnalizacja i data traffic między UE a gNodeB to już jest współdzielone, dlatego widzimy 3 kanały logiczne mapowane na jeden. 
 
@@ -631,7 +636,7 @@ Zaraz je omówimy dokładniej bo Jordi jakoś je lubi i dał na wykładzie dokł
 
 #### P(D/U)SCH
 
-Trzeba wiedzieć, że to jest jakiś sofcik i on po prostu na tych bitach co dostanie od warstw wyżej, to coś jeszcz robi i opis funkcjonalny poniżej to jest właśnie co on robi:
+Trzeba wiedzieć, że to jest jakiś sofcik i on po prostu na tych bitach co dostanie od warstw wyżej, to coś jeszcze robi i opis funkcjonalny poniżej to jest właśnie co on robi:
 
 - Contains User Data and UE-specific higher layers control data (system info and paging)
   - No to na ten fizyczny mapowane są kanały Shared z transportowej warstwy
@@ -641,7 +646,8 @@ Trzeba wiedzieć, że to jest jakiś sofcik i on po prostu na tych bitach co dos
     - wysłać ciurkiem jedną anteną, tak jak jest standarodowo, ale mam wtedy zerowy gain z tych 4 anten
     - wysłać ciurkiem czterema antenami, co wprowadza nieco redundancji, ale tak się robi gdy **SINR (Signal INterference Ratio)** jest przeszkadzający
     - wysłać po 2 bity każdą z anten, co zmiejsza 4-krotnie czas transmisji* i tak się robi gdy SINR na to pozwala
-    - *a w 5G przecież jest mocny nacisk na latency
+    
+      - > *a w 5G przecież jest mocny nacisk na latency
 - It adds:
   - **CRC** - 
     - Cyclic Redundancy Check, czyli jeden z error-detecting code
@@ -697,7 +703,7 @@ Tego kanału fizycznego uzywa tylko gNodeB
 - It provides information about the Master information block content used for cell selection
   - Czyli żeby UE sie zsynchronizował z gNodeB (tzn. "wbił w czekoladkę")
 - Używana modulacja to QPSK
-  - ja lubie wolmo ale dokładnie, bo nikt mi nie każe szybko, bo nie jestem danymi usera - PBCH
+  - "ja lubie wolmo ale dokładnie, bo nikt mi nie każe szybko, bo nie jestem danymi usera" - PBCH tak mówi zapytany o wybraną modulacje
 
 #### PRACH
 
@@ -735,3 +741,76 @@ PRACH jest tylko do znalezienia mój beam na tym gnb
 
 # Za tydzień kolos do slajd 19 punkty 1.2 i ten z sinc(x)
 
+# Fast review
+
+Jak byś miał się czegoś nauczyć o każdej warstwie to tego?
+
+## RRC
+
+Tylko w contol plane
+
+Punkt kontrolny RAN dla core'a.
+
+- paging
+- broadcast of system info
+- establishment of radio bearers, reconfiguration etc.
+- RRC connection and release
+- mobility procedures 
+  - zlecanie pomiarów i handover
+
+## SDAP
+
+tylko User plane
+
+Mapowanie QoS Flow Id (rozumiane przez core) na Radio bearers (rozumiane przez radio)
+
+Wybór i konfiguracja radio bearera
+
+## PDCP
+
+Usługa jednolitego pakietowego przekazu danych dla SDAP (UP) i RRC (CP).
+
+Tutaj się najwięcej dzieje:
+
+- TCP/IP header compression
+- Szyftowanie
+- Reply protection
+- Integrity protection
+- Sequence numbering
+- Wybór trybu (AM, UM, TM)
+
+## RLC
+
+Usłga transferu PDU wyższych przez MAC. 
+
+- Segmentacja wyższych PDU.
+
+- Zapewnienie trybu (AM, UM, TM)
+
+## MAC
+
+- mapowanie kanałów logicznych na transportowe
+- HARQ
+- Iband monitoring
+
+## PDSCH / PUSCH
+
+Przesyła dane control i user plane.
+
+Dodaje scrambling, CRC, HARQ, Reference signals, modulacje QPSK, 16QAM, 64QAM, 256QAM
+
+## PDCCH / PDUCCH 
+
+Nie przesyła żadnych ramek wartwy wyższej. 
+
+Kontroluje transmisje kanału P(D/U)SCH, które leci "obok".
+
+## PBCH
+
+Broadcast
+
+QPSK
+
+## PRACH
+
+Gdzie jest mój beam
