@@ -137,7 +137,7 @@ Liczba przesłanych pakietów (od danych długościach) w danej jednostce czasu,
 
 ![](img/7.png)
 
-Klientami mogą być pakiety lub zadania do wykonania przez serwer obsługi
+Klientami mogą być pakiety lub zadania (calls) do wykonania przez serwer obsługi
 
 Metody badawcze:
 
@@ -185,7 +185,7 @@ X) Queueing discipline
 
 Jak można je wypełnić?
 
-`A i B`:
+`A` i `B`:
 
 - `M` - Markovian -  rozkład czasów między zdarzeniami taki jak w Procesie Poissona - rozkład wykładniczy
 
@@ -221,7 +221,7 @@ Przykłady:
 
 Type of random mathematical object that consists of points randomly located on a mathematical space.
 
-The process has convenient mathematical properties, which has led to its being used as a mathematical model] for seemingly random processes in numerous disciplines: w tym telco.
+The process has convenient mathematical properties, which has led to its being used as a mathematical model for seemingly random processes in numerous disciplines: w tym telco.
 
 <img src="img/9.png" style="zoom:150%;" />
 
@@ -230,6 +230,8 @@ A visual depiction of a Poisson point process starting from 0, in which incremen
 Czyli kolejne *punkty* pojawiają się losowo, ale średnio co `λ`. Więc jak weźmiemy wygenerujemy 100000 punktów procesem Poissona, to średnia odstępów między nimi wyjdzie `λ`. Mimo, to każdy kolejny odstęp generowany jest niezależnie, tzn. gdy `λ=2` i poprzedni odstęp był `1` to nie ma specjalnego mechanizmu, żeby teraz odstęp był `3`.
 
 Podsumuwujac: a process in which events occur continuously and independently at a constant average rate
+
+Summarizing: proces, w którym zdarzenia występują w sposób ciągły i niezależny ze stałą średnią intensywnością
 
 ## 5 Rozkład wykładniczy
 
@@ -424,7 +426,7 @@ Plan:
 
 ### 12.1 Procesy Markova
 
-Ten zbiór własności wynika z tego, że system M/M/1 jest możliwy do opisania poprzez proces Markova
+Ten zbiór własności systemu M/M/1 wynika z tego, że jest on możliwy do opisania poprzez proces Markova
 
 - System może być jedynie w jednym ze stanów k, k=0,1,2…
   - Stan systemu to między innymi liczba klientów w nim. I to nie może być np. `1.2` klienta. Po `1 klient` sąsiednie stany to `0 klientów` lub `2 klientów` - nie ma nic pomiędzy. 
@@ -541,7 +543,7 @@ Tutaj Burak odleciał xd
 
 ![](img/48.png)
 
-## 15 M/M/n/k - systemy ze stratami
+## 15 M/M/n/K - systemy ze stratami
 
 ![](img/51.png)
 
@@ -561,7 +563,7 @@ Stan systemu określony jest przez liczbę klientów.
 >
 > Dlatego powroty o stan niżej dzieją się szybciej.
 >
-> Przykład  ʎ = 1 i µ = 1. Mamy stan=1. W tym stanie możliwe, że zaraz (z rozkładem `µ`) serwer zakończy obsługę tego jednego klienta i system wróci do stanu 0. Jak teraz do systemu wbije klient, to stan się zwiększy na `2`, ale ten klient od razu jest obsługiwany, więc teraz system równolegle obsługuje dwóch klientów, czyli z rozkładem `2µ`. 
+> Przykład  ʎ = 1 i µ = 1. Mamy stan=1. W tym stanie możliwe, że zaraz (z rozkładem `µ`) serwer zakończy obsługę tego jednego klienta i system wróci do stanu 0. Jak teraz do systemu wbije klient, to stan się zwiększy na `2`, ale ten klient od razu jest obsługiwany, więc teraz system równolegle obsługuje dwóch klientów, czyli z powrót do stanu=1 dany jest rozkładem `2µ`. 
 
 ### 15.2 P-stwa na stany
 

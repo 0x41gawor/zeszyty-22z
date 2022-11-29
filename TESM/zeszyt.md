@@ -290,7 +290,7 @@ Skoro widać te wartswy oraz na nich działające protokoły to zdefiniujmy sobi
 
 **Protocol Data Unit** - Jak apka warstwy `n` coś wytworzy do wysłania, to nazywamy to *Procotocl Data Unit*. 
 
-**Service Data Unit** - Jak apka warstwy `n` wyśle swoje PDU przez channel wyśle do apki warstwy `n-1` to apka warstwy `n-1` nazywa to *Service Data Unit* warstwy `n`. Bo warstwa `n` korzysta z usługi warstwy `n-1`, więc dla warstwy niższej to jest coś co ona ma obsłużyć.
+**Service Data Unit** - Jak apka warstwy `n` wyśle swoje PDU przez channel wyśle do apki warstwy `n-1` to wartwa `n-1` dostanie PDU warstwy wyższej i zrobi swoje (ale to już się nazywa SDU), bo ona wykonała usługę jakąś na tym PDU.
 
 ### Peer to Peer communication: protocol layer
 
@@ -341,7 +341,7 @@ Stany RRC w jakich może być UE z danym gNodeB:
 
 Jak UE rozpocznie *PDU session*, to SMF wymyśli dla niej *Qos Flow ID*, które w 5G jest najmniejszą jednostką, która w core decyduje o jakoście przekazu danych. 
 
-> W LTE core zlecał RAN'owi bezpośredni jaki ma zrobić bearer (tym się zajmował protokół PDCP, który w 5G jest nieco copy&paste z 4G). Jedyn więc funkcja SDAP, to mapowanie QoS Flow, które umie core, na Radio Bearer, które umie PDCP. 
+> W LTE core zlecał RAN'owi bezpośredno jaki ma zrobić bearer (tym się zajmował protokół PDCP, który w 5G jest nieco copy&paste z 4G). Jedyna więc funkcja SDAP, to mapowanie QoS Flow, które umie core, na Radio Bearer, które umie PDCP. 
 
 Do warstwy SDAP każdy pakiet przychodzi z QoS Flow ID i wszystkie które przyjdą z takim samym beda potraktowane tak samo.
 
@@ -379,6 +379,8 @@ Na jedną *PDU session* tworzone jest jedno *SDAP entity*. Czym można je skonfi
 >
 > Ale w 5G jest sieć która ma tworzyć dużo nowych modeli biznesowych i URLLC, MBB, MMTC, i wgl to już klasi jest mega dużo fest że hej. i Właśnie dlatego się pojawia SDAP
 
+### Plane-independent
+
 #### PDCP
 
 **Packet Data Convergence Protocol** - protocol located on top of the air interface. Provides transport services for RRC (CP) and SDAP (UP) upper layers. Specified in TS 38.323. Functionalities:
@@ -415,81 +417,52 @@ Na jedną *PDU session* tworzone jest jedno *SDAP entity*. Czym można je skonfi
   - Transparent Mode - jak //TODO
   - Czyli czy każemy, żeby RLC potwierdzało każdy RLC message czy nie.
 
-## AS UP 11
-
-data protection - integrity protection ze dane nie zostaly po drodze zmienione
-
-AM (podobne do TCP), UM (podobne do UDP)
-
-Sequence flow dla SDAP (lub PDCP chłop się pomylił) dla kazdego pakietu
-
 ![](img/11.png)
 
-**RLC**
+#### RLC
 
-ile instancji mamy PDCP na instancji RLC jeśli mamy dual connectivity to pakiet PDCP moze iść na dwie RLC (bo moge uzywac dwie f, zeby wysylac to) i to się nazywa split
+> PDCP decyduje jaki jest sposób przekazu a RLC wykonuje ten sposób
+>
+> RCL przygotowuje dane do MAC'a
 
-a split ACknowledge mode to są jeszcze dwie instancje DRB, jedna DL jedna UL żeby dostawać acknowledge pakietów czyli instancji RLC jest 3 (on mówi 4).
+**Radio Link Control**
 
-"zamyślenie aaa bueno jeszcze jak ten pakiet cccoś tam..."
+Functionalities:
 
-## AS UP 9/10
+- Transfer of upper layer PDUs in one of 3 modes:
+  - AM - Ack Mode (ARQ)
+  - UM UnAck
+  - TM - Transparent
+- Reaseembly window for segmentation
+  - MAC wysyła dane w chunkach (bo to ostatnia warstwa przed zamianą na sygnał ele), więc to co trzeba mu dać to takie chunki. RLC właśnie musi zrobić te chunki. Chunki mają określony rozmiar np 64. Co jeśli dostaniemy od PDCP dwa pakiety po 20? Trochę głupi je wysyłać w oddzielnych MAC PDU (chunki), bo tracimy ok 70% przestrzeni, więc RLC składa oba te PDCP PDU w jeden pakiet i przekazuje do MAC. To się nazywa **konkatencja** - analogicznie podział PDCP PDU na mniejsze, bo jeden się nie mieści to **segmentacja**. W LTE było i to i to, ale 5G z racji nacisku na latency odrzuca konkatenacje (bo jak dostanie się małe PDCP PDU, to trzeba czekać na następne małe).
+- Operacje na RLC header takie jak:
+  - Zapisanie bitu `D` lub `C` - Data czy Control, dlaczego to zapisujemy? Bo w segmentacji tracimy info o DRB itp
+  - Polling - 1 bit, który mówi czy ma potwierdzać czy ten pakiet przyszedł czy nie (ARQ)
+  - Segment offset - ile bitów danych jest z tego segmentu
+  - Segment info - czy była segmentacja
+  - Segment number - wiadomka
 
- Te QoS Flow ID nadaje SMF dla sesji.
+Opis z wikipedii mi się mega podoba https://en.wikipedia.org/wiki/Radio_Link_Control
 
-SDAP kontroluje QoS Flow i mapuje na radio bearer
+#### MAC
 
-![](img/12.png)
+**Medium Access Control** - ogólnie to to jest protokół kontrolujący the hardware responsible for interaction with the wired, optical or wireless trasmission medium. 
 
-ARP definiuje ile max sesji transport channel (moze ile slotów?)
+>  MAC decyduje ile bit/s ja wysyłam w powietrzu, ofc przez nagłówek MAC jest to inna wartość niż w RLC.
 
-BER w fiber 10^-11
+>  Najważniejsza fucja MAC to kontrolować ile mogę bitów wyssyłać, tak żeby nie zakłócać szczelin czasowych.
+>
+> MAC ostatnia warstwa przed fizyczną. Zaraz dojdzie do zmiany na sygnał elektryczny :D
 
-A w air interface 10^-6-10^-8
+Functionalties:
 
-Ale BER to nie tylko powietrze ale też ze nie procesujemy wystarczająco szybko tego wiadra, więc mamy dwa błędy medium oraz process
+- Mapowanie kanałów logicznych na transportowe
 
-## AS UP 11
-
-PDCP - ma bardzo duzo funkcjonalności, ogólnie zeby dane były bezpieczne i niezawodne
-
-PDCP - kontroluje 
-
-Decyzja czy na dole radia będzie robił ACK, UM lub nic w warstwie RLC, czyli czy potwierdzać czy nie potwierdzać każdy pakiet.
-
-## AS UP 12
-
-RLC
-
-PDCP decyduje jaki jest sposób przekazu a RLC wykonuje ten sposób.
-
-MAC decyduje ile bit/s ja wysyłam w powietrzu, ofc przez nagłówek MAC jest to inna wartość niż w RLC.
-
-Najważniejsza fucja MAC to kontrolować ile mogę bitów wysyłać, tak żeby nie zakłócać szczelin czasowych.
-
-W LTE można było robić konkatenacje dwóch małych bitów i wkładać w jeden timeslot, odwrotność tego to segmentacja.
-
-W 5G nie ma konkatenacji, jest tylko segmentacja. Bo 5G kładzie nacisk na latency, a jak jest konkatencja to trzeba czekac aż procesowanie przekaże drugi mały pakiet do pary. Czyli mamy mały pakiet to nie czekamy na następny mały, że bo konkatenować.
-
-
-
-nagłówek
-
-- Data czy Control, dlaczego to zapisujemy? Bo w segmentacji tracimy info o DRB itp
-- Polling - 1 bit, który mówi czy ma potwierdzać czy ten pakiet przyszedł czy nie (ARQ)
-- Segment offset - ile bitów danych est z tego segmentu
-- Segment info - czy była segmentacja
-- Segment number - wiadomka
-
-RCL przygotowuje pakiety do MAC'a
-
-## AS UP 13
-
-MAC ostatnia warstwa przed fizyczną. Zaraz dojdzie do zmiany na sygnał elektryczny :D
+- multiplexing of MAC SDUs from one or different logical channels onto transport blocks (TB) to be delivered to the physical layer on transport channels; 
 
 - Inbdand monitoring, MAC w UE co jakiś czas wysyła info odnośnie moc sygnału, synchronizacja itp.
 
-- Uplink channel prio .. - MAC w UE wysyłaj jak ważny jest ten pakiet, zeby antena jak nie moze obsluzyc wszystkiego w uplink, to zeby miala priorytety jakieś do decyzji
+- Uplink channel prioritatization .. - MAC w UE wysyła jak ważny jest ten pakiet, zeby antena jak nie moze obsluzyc wszystkiego w uplink, to zeby miala priorytety jakieś do decyzji
 
 - Uplink time alignment - między antena i UE może byc kilka km, więc droga propagacji już może wpływać na synchronizacje, (światło leci z `c`). Więc antena patrzy jaka jest moc sygnału RSRP i oczacowuje jak daleko UE jest od anteny i UE wtedy wysyła trochę wcześniej niż ma timeslot dany. 
 
@@ -503,21 +476,153 @@ MAC ostatnia warstwa przed fizyczną. Zaraz dojdzie do zmiany na sygnał elektry
 
   - HARQ jest wszędzie gdzie jest MAC, nie tylko 5G
 
-Są dwa przypadki zeby uruchomić UL Random Access Procedure
+- Są dwa przypadki zeby uruchomić UL Random Access Procedure
 
-- handover: wtedy RRC inicjuje RAP mówiąc to do MAC i one otworzą higher layers
-- jeśli do MAC przyjdzie nowy strumień danych, czyli to znaczy, że jest nowa sesja, wtedy sam MAC inicjalizuje procedure RAP
+  - handover: wtedy RRC inicjuje RAP mówiąc to do MAC i one otworzą higher layers
+  - jeśli do MAC przyjdzie nowy strumień danych, czyli to znaczy, że jest nowa sesja, wtedy sam MAC inicjalizuje procedure RAP
+  - Obczaj sobie Contention-Free RA oraz Contention-Based. Based jest używane kiedy Free się nie udaje kilka razy.  
+  - Są dwa sposoby na RAP:
 
-RAP kontroluje MAC
-
-Są dwa sposoby na RAP:
-
-- czytać z System Info że możesz wysyłać w timeslot taki, z taką preamble. I SIB wysyła że wysyłaj w `t+tau`, gdzie `tau` jest od `0 do 100 mikro sekund` i wtedy my losujemy że np. tau=27us
+    - czytać z System Info że możesz wysyłać w timeslot taki, z taką preamble. I SIB wysyła że wysyłaj w `t+tau`, gdzie `tau` jest od `0 do 100 mikro sekund` i wtedy my losujemy że np. tau=27us
 
 
 
-Obczaj sobie Contention-Free RA oraz Contention-Based 
+>#### AS UP 11
+>
+>**RLC**
+>
+>ile instancji mamy PDCP na instancji RLC jeśli mamy dual connectivity to pakiet PDCP moze iść na dwie RLC (bo moge uzywac dwie f, zeby wysylac to) i to się nazywa split
+>
+>a split ACknowledge mode to są jeszcze dwie instancje DRB, jedna DL jedna UL żeby dostawać acknowledge pakietów czyli instancji RLC jest 3 (on mówi 4).
+>
+>"zamyślenie aaa bueno jeszcze jak ten pakiet cccoś tam..."
+>
+>#### AS UP 9/10
+>
+>![](img/12.png)
+>
+>ARP definiuje ile max sesji transport channel (moze ile slotów?)
+>
+>BER w fiber 10^-11
+>
+>A w air interface 10^-6-10^-8
+>
+>Ale BER to nie tylko powietrze ale też ze nie procesujemy wystarczająco szybko tego wiadra, więc mamy dwa błędy medium oraz process
 
-Based jest używane kiedy Free się nie udaje kilka razy.  
+Tu masz pięknie co to jest kanał transportowy a co to logiczny
 
-Kanały logiczne, są mapowane na kanały transportowe, a potem na kanały fizyczne. 
+![image-20221128194134779](C:\Users\Admin\AppData\Roaming\Typora\typora-user-images\image-20221128194134779.png)
+
+## Warstwa fizyczna
+
+### Ocb z tymi kanałami?
+
+GSM
+
+![](img/16.png)
+
+**Kanał fizyczny TDMA (Time Slot (TS))** - tworzony przez cykliczny ciąg (modulo 7) okienek przypisanych temu kanałowi, przeplecionych z innymi okienkami czasowymi. Czyli na przykład mamy Time Slot tworzony z okienek o numerze 4,
+
+![](img/18.png)
+
+**Kanał logiczny** - przepływ informacji określonego typu w ramach Time Slotu
+
+- realizowany z użyciem określonego podzbioru okienek kanały fizycznego
+
+- określony przez zarezerwowanie określonych okienek (lub sekwencji okienek grupowanych po kilka) w ramach danego Time Slotu
+
+- sekwencja (pozycje) okienek tworzących kanał logiczny musi być znana perz terminal i BTS; może być predefiniowana lub ustalona dynamicznie wg reguł
+
+  - > bo opisano ileś standardów pakowania kanałów logicznych w fizyczne i stacja może powiedzieć do terminala "ej, stosujemy układ nr 7" i terminal wie jakie kanały logiczne jak idą po sobie na jakich kanałach fizycznych
+
+- > np. my mówimy, że grupa czterech kolejnych okienek o numerze 2 powtarzająca się co 20 to jest nasz kanał logiczny, on będzie miał jakąś przepływność tam, co prawda będzie taki szarpany ale to nic
+
+![](img/19.png)
+
+Tak było w GSM widać, że w 5G wprowadzili kojeną wartswę abstrakcji czyli kanały transportowe, ale idee łapiemy.
+
+### Podział kanałów w 5G
+
+Są trzy typy kanałów w 5G:
+
+- **logiczne** 
+  - Oferowane przez MAC dla RLC
+  - Mówią "what is carried"
+  - RLC je tworzy, przekazuje do MAC, a MAC mapuje je na ("swoje") transportowe 
+- **transportowe**
+  - Oferowane przez PHY dla MAC
+  - Mówią "how it is carried"
+  - MAC je tworzy i przekazuje do PHY
+- **fizyczne**
+  - Tutaj jak już PHY dostanie kanały trasnportowe od MAC to mapuje je na fizyczne
+  - Mówią "how pack it into timeslots"
+  - Potem jak jest transmisja to PHY obserwuje timesloty i patrzy jakie mają one przypisane kanały fizyczne i sprawdza czy ma jakieś bursty do wysłania na danym kanale fizycznym
+
+Ten proces jest ogólny dla UE jak i dla gNodeB.
+
+To co UE wysła do gNodeB to się nazywa Uplink.
+
+To co gNodeB wysyła do UE to się nazywa downlink.
+
+Zauważmy, że to często różniące się rzeczy. Mają część wspólną jak to że zarówno UE jak i gNodeB wysyłają między sobą dane. Ale np. gNodeB rozgłasza informacje systemowe, a UE tego nie robi, gNodeB też robi paging a UE nie, a UE np. budzi się i prosi gNodeB o rejestracja, a gNodeB nie. Dlatego właśnie chłopaki wymyślili te kanały logiczne, transporowe i zrobili podział na Uplink oraz Downlink.
+
+![](img/15.png)
+
+### Kanały logiczne
+
+Pierwszy podział to na User Plane (<u>Traffic channel</u>) i Control Plane (<u>Control channel</u>). 
+
+Drugi podział to na common i gNodeB-specific.
+
+Dobra, jazda:
+
+- gNodeB-specific
+  - **BCCH - Broadcast Control Channel** - to tu gNodeB rozgłasza informacje systemowe
+  - **PCCH - Paging Control Channel** - to tu gNodeB robi paging
+
+- common
+  - **CCCH - Common Control Channel** - kanał control plane ale wspólny dla wszystkich UE, to tu UE np. zgłasza się do gNodeB, ze chce się zarejestrować (robi RRC connection)
+  - **DCCH - Dedicated Control Channel** - jak UE i gNodeB wejdą w jakiś bardziej zaawansowany scenariusz sygnalizacyjny to "idą na stronę", czyli na dedykowany kanał sygnalizacyjny tylko dla nich
+  - **DTCH - Dedicated Traffic Channel** - kanał do User Plane
+
+### Kanały transportowe
+
+Logiczne stanowiły taki logiczny podział, do czego dany pakiet będzie potrzebny ale tak górnolotnie. Tutaj nadal jest podział do czego dany pakiet będzie potrzebny ale tak warstwę niżej. Zauważ, np. że tu już znika pojęcie control i user plane, ta warstaw nie rozumie tego podziału. 
+
+Niektóre da się zawezić inne rzeczy nie da się. Takie coś jak broadcast info systemowe czy paging to musi mieć zapewniony byt, więc nie wclicza się do współdzielonej puli. A reszta rzeczy jak sygnalizacja i data traffic między UE a gNodeB to już jest współdzielone, dlatego widzimy 3 kanały logiczne mapowane na jeden. 
+
+Dobra, jazda:
+
+- gNodeB-specific
+  - **BCH - Broadcast Channel** - zmapowany logiczny::BCCH
+  - **PCH - Paging Channel** - zmapowany logiczny::PCCH
+- UE-specific
+  - **Random Access Channel** - Random Access oznacza "Dostęp w dowolnym momencie". UE używa tego kanału jak się "obudzi" i nie wie jeszcze nic o strukturze czekoladki jaką wysyła gNodeB. Więc próbuje tutaj coś wysyłać i może akurat uniknie kolizji z innymi UE.
+- Common
+  - **DL-SCH i UL-SCH - Downlink i Uplink Shared Common Channel** - zmapowane kanały logiczne::CCCH, DCCH, DTCH, ale z podziałem na uplink i downlink (bo warstwa niżej - jesteśmy już bliżej organizacji tego w air interface)
+
+### Kanały fizyczne
+
+Tu już wkładamy bursty w timesloty - uzupełniamy czekoladke.
+
+Tutaj widzimy dwa kanały, które nie mają żadnego mapowania z góry, czyli nie otrzymują danych do przeniesienia z wyższych warstw, one powstały w tej warstwie - są to kanały, które kontrolują medium.
+
+Mamy też kanały P(U/D)SCH, które niosą info z góry typu common. Oraz po jednym kanale UE i gNodeB-specific, które mapują wyższe kanały -specific.
+
+Dobra, jazdunia:
+
+- Medium control
+  - **PDCCH - Physical Downlink Control Channel** 
+  - **PUCCH - Physical Uplink Control Channel**
+  - Robią sheduling timeslotów (wymiana info jak ma wyglądać on), robią pomiary Transmit Power Control itp.
+- Common (mapują wyższe kanały)
+  - **PDSCH - Physical Downlink Shared Channel**
+  - **PUSCH - Physical Uplink Shared Channel**
+- UE-specific
+  - **PRACH - Physical Random Access Channel**
+- gNodeB-specific
+  - **PBCH - Physical Broadcast Channel**
+
+Zaraz je omówimy dokładniej bo Jordi jakoś je lubi i dał na wykładzie dokładniejszy opis.
+
+> Jest pewna kwestia o której nie wspomniałem nic. Dlaczego BCCH i PCH w downlink mają odnogi w kanały shared? Bo części tego rozgłoszeniowego lub pagingowego info idzie tamtymi kanałami. Np. Broadcast ma dwa bloki Master Information Block (dla wszystkich) i jakiś tam inny blok (dla bardziej zainteresowanych UE - chyba tych co są podłączeni do komórki i mają robić pomiary, a MBI jest dla wszystkich UE na świecie).
