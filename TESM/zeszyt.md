@@ -689,7 +689,7 @@ To jest kanał, który nie przenosi żadnych ramek od warstw wyżej. On kontrolu
 - It adds DMRS for beamforming
   - https://www.linkedin.com/pulse/5g-nr-pdsch-dmrs-figured-out-andrew-kolomatski/?trk=articles_directory żeby wiedzieć ocb to trzeba przeczytać ten artykuł, czy Jordi tego wymaga od nas?
 
-### PBCH
+#### PBCH
 
 Tego kanału fizycznego uzywa tylko gNodeB
 
@@ -706,4 +706,32 @@ Tego kanału fizycznego uzywa tylko UE.
 PRACH jest tylko do znalezienia mój beam na tym gnb
 
 > UE może tu mówić słuchaj straciłem beama, informuj mnie jakiś jest mój nowy beam -- nie wiem, do którego myślnika to pasuje
+
+### OFDM
+
+- **Multi-path propagation** - odbicia przeszkadzają bo w nadajniku robi się **intersymbol interference**. Dlatego robi się tzw. **cyclic prefix**. Czyli symbol nie trwa `T`, a `T+T'`, nieco dłużej, tak aby zdążył zaistnieć na tyle, że nadajnik go uzna za symbol do odebrania. Wartość `T'` w obszarach gdzie jest dużo odbijania się (np. miasto) powinna być większa, a tam gdzie nie trzeba (pole, łąka) mniejsza. Niestety w LTE to tylko jedna wartość, a w 5G dwie.
+
+- **Channel frequency selectivity**
+
+  - ```
+    y = h*x + n
+    y - to co będzie odebrane
+    x - to co wysłane
+    n - noise (ale szum biały)
+    h - odpowiedź medium (warunki propagacyjne)
+    ```
+
+  - **szum biały** - to szum jaki wprowadza sama aneta, nadajnik i odbiornik (a w nim detektory), nie zależy on od otoczenia, od medium, a od samych urządzeń. Po prostu UE i gnb ich detektory charakteryzują się jakimś szumem na antenie. 
+
+  - Ten szum biały mogę sobie estymować i na tej podstawie zrobić equalization
+
+  - ![](img/20.png)
+
+- **Singla modulation, DFT, sinc(x)**
+  - Każda nośna ma jakiś wzór:
+    Asin(2pinf0t) + A2cos(2pinf0t) i nadajnik wysyła sumę punkt po punkcie. I tak co symbol czyli okres sinusa T. 
+  - Potem z czasu idzie to na f czyli transformata Fouriera ez
+  - Tylko jedna nośna będzie na max amplitudę w punkcie środkowym, reszta wszystkie są zero tam. Dlatego nie ma interferencji między nośnymi - bo są ortogonalne.
+
+# Za tydzień kolos do slajd 19 punkty 1.2 i ten z sinc(x)
 
