@@ -539,6 +539,8 @@ GSM
 
 ![](img/19.png)
 
+^To coś na rysunku to Burszti nazywa **czekoladka**
+
 Tak było w GSM widać, że w 5G wprowadzili kojeną wartswę abstrakcji czyli kanały transportowe, ale idee łapiemy.
 
 ### Podział kanałów w 5G
@@ -626,3 +628,82 @@ Dobra, jazdunia:
 Zaraz je omówimy dokładniej bo Jordi jakoś je lubi i dał na wykładzie dokładniejszy opis.
 
 > Jest pewna kwestia o której nie wspomniałem nic. Dlaczego BCCH i PCH w downlink mają odnogi w kanały shared? Bo części tego rozgłoszeniowego lub pagingowego info idzie tamtymi kanałami. Np. Broadcast ma dwa bloki Master Information Block (dla wszystkich) i jakiś tam inny blok (dla bardziej zainteresowanych UE - chyba tych co są podłączeni do komórki i mają robić pomiary, a MBI jest dla wszystkich UE na świecie).
+
+#### P(D/U)SCH
+
+Trzeba wiedzieć, że to jest jakiś sofcik i on po prostu na tych bitach co dostanie od warstw wyżej, to coś jeszcz robi i opis funkcjonalny poniżej to jest właśnie co on robi:
+
+- Contains User Data and UE-specific higher layers control data (system info and paging)
+  - No to na ten fizyczny mapowane są kanały Shared z transportowej warstwy
+  - Czyli: Control i User Plane oraz odnogi paging i broadcast(system info)
+- For each P(D/U)SCH resource block:
+  - UE w 5G może mieć aż do 4 anten (nadawczo-odbiorczych). Stąd bierze się pojęcie **Single-User MIMO**. Czyli skoro mam jakieś słowo 8 bitowe do wysłania, i mam 4 anteny to mogę:
+    - wysłać ciurkiem jedną anteną, tak jak jest standarodowo, ale mam wtedy zerowy gain z tych 4 anten
+    - wysłać ciurkiem czterema antenami, co wprowadza nieco redundancji, ale tak się robi gdy **SINR (Signal INterference Ratio)** jest przeszkadzający
+    - wysłać po 2 bity każdą z anten, co zmiejsza 4-krotnie czas transmisji* i tak się robi gdy SINR na to pozwala
+    - *a w 5G przecież jest mocny nacisk na latency
+- It adds:
+  - **CRC** - 
+    - Cyclic Redundancy Check, czyli jeden z error-detecting code
+  - **Scrambling**
+    - Jak trafi się, że do wysłania jest bajt, który ma same zera lub jedynki to jest to trochę problematyczne, bo
+      - a) Łatwo o desynchornizacje nadajnika i odbiornika - jak zmienia się symbol to odbiornik wie, a teraz minął czas trwania symbolu i może sobie skorygować
+      - b) jeśli wysyłamy non-stop jedynki to nadajnik ma voltage na UP długo, co w UE zżera batke, antena git bo ma prąd
+    - Dlatego zamiast wysyłać takie potencjalnie niebezpieczne ciąg to wysyłam kod scrumblingowy i umawiamy się na jego mapowanie
+  - **HARQ**
+    - Hybrid automatic repeat request
+    - Protokoł do bezbłędnej transmisji w czasie trudnych warunków propagacyjnych
+    - Ponad standardowe ARQ dodaje FEC (forward error correction)
+  - **DMRS** (Demodulation Reference Signal)**
+    - Impuls który wysyłamy w pewnym momencie żeby estymować jaka jest odpowiedź kanału, żeby sprawdzić interferencję i szumy (channel estimation) 
+    - Ogólnie DMRS to kreseczki w prawym górnym rogu
+  - **Layer mapping**
+    - Wiadomka
+  - **Transparent precoding**
+    - Precoding is a generalization of [beamforming](https://en.wikipedia.org/wiki/Beamforming) to support multi-stream (or multi-layer) transmission in [multi-antenna](https://en.wikipedia.org/wiki/MIMO) wireless communications
+  - In additional symbols:
+    - Ten kanał czasami wciska takie swoje symbole i jednym z nich jest **Phase Tracking Reference Symbols (PTRS)	**
+    - Czasem jak nam się lekko sin i cos przesunie to mamy interferencje w fazie. To jest jedno z trudniejszych zagadnień w telco, no bo przecież cała tranismiaj opiera się na dokładnych i zsynchronizowanych zegarach. Dlatego wysyłamy ten PTRS. 
+  - Jakich modulacj używa ten kanał?
+    - QPSK, 16QAM, 64QAM, 256QAM
+    - Wybiera je na podstawie tych "reference signals"
+    - CQI (Channel Quality Indicator) zakres: 0-15 i jest mapowanie np CQI=7 => 16QAM
+      -  CQI to wysyła UE do gnb po pomiarach
+      - gnb często wybiera lepszą modulację niż CQI wskazuje a potem patrzy jakie straty i dopasowuje ewentualnie
+
+> **UKE jedno z obowiązek to mierzyć jakość usług. Można wnioski składać że jest lipa i UKE musi sprawdzać. Do tej pory robił to piprzed właśnie DMRS. Ogólnie DMRS to kreseczki w prawym górnym rogu jak jest -130dBm to jest wniosek do operatora żeby zmienił (lepsza Aneta albo kolejna) 
+> Jedyne co UKE kontroluje to tylko moc sygnału zakres -120 - -130dBm jest git. Ale tylko antena wie jak jest SNR. Aneta wysłała -70 a UE odbiera -120 i tylko antena to wie. Więc wiemy tylko jaki jest coverage ale nic nie wiemy jaka jest jakość usług. 
+> Ale od dziś UKE ocenia na podstawie SINR (nie dokładnie SINR ale coś związane zaraz zobaczymy) a jest to RSRP sygnał referencyjny i to tylko w kanale PDCCH 
+
+#### P(D/U)CCH
+
+To jest kanał, który nie przenosi żadnych ramek od warstw wyżej. On kontroluje transmije tej warstwy między nadajnikiem a odbiornikiem.
+
+- Contains control information used in PDSCH and PUSCH
+  - Czyli po prostu nadajnik wysyła informacje kontrolne do odbiornika i instruuje go jak ma odbierać/interpretować to co nadajnik mu wysyła na kanałach PDSCH/PUSCH
+    - np. nadajnik używa kodów scramblingowych, więc tu wyśle jak je mapować
+- DL assignments: PDSCH resource allocation, modulation and HARQ info.
+- UL assignments: modulation, power control info. and HARQ info.
+- Jako modulacji ten kanał używa QPSK 
+  - bo niezależy nam aż tak na szybkości (to nie są dane) takie info kontrolne jest wysyłane dużo rzadziej (np. umówimy się na konkrente mapowanie scrumblingowe i potem używam go aż przez następne 100000 ramek), a QPSK jest wolna ale za to mało błędów
+- It adds DMRS for beamforming
+  - https://www.linkedin.com/pulse/5g-nr-pdsch-dmrs-figured-out-andrew-kolomatski/?trk=articles_directory żeby wiedzieć ocb to trzeba przeczytać ten artykuł, czy Jordi tego wymaga od nas?
+
+### PBCH
+
+Tego kanału fizycznego uzywa tylko gNodeB
+
+- PBCH is part of the SSB
+- It provides information about the Master information block content used for cell selection
+  - Czyli żeby UE sie zsynchronizował z gNodeB (tzn. "wbił w czekoladkę")
+- Używana modulacja to QPSK
+  - ja lubie wolmo ale dokładnie, bo nikt mi nie każe szybko, bo nie jestem danymi usera - PBCH
+
+#### PRACH
+
+Tego kanału fizycznego uzywa tylko UE.
+
+PRACH jest tylko do znalezienia mój beam na tym gnb
+
+> UE może tu mówić słuchaj straciłem beama, informuj mnie jakiś jest mój nowy beam -- nie wiem, do którego myślnika to pasuje
+
