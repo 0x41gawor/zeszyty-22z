@@ -713,32 +713,6 @@ PRACH jest tylko do znalezienia mój beam na tym gnb
 
 > UE może tu mówić słuchaj straciłem beama, informuj mnie jakiś jest mój nowy beam -- nie wiem, do którego myślnika to pasuje
 
-### OFDM
-
-- **Multi-path propagation** - odbicia przeszkadzają bo w nadajniku robi się **intersymbol interference**. Dlatego robi się tzw. **cyclic prefix**. Czyli symbol nie trwa `T`, a `T+T'`, nieco dłużej, tak aby zdążył zaistnieć na tyle, że nadajnik go uzna za symbol do odebrania. Wartość `T'` w obszarach gdzie jest dużo odbijania się (np. miasto) powinna być większa, a tam gdzie nie trzeba (pole, łąka) mniejsza. Niestety w LTE to tylko jedna wartość, a w 5G dwie.
-
-- **Channel frequency selectivity**
-
-  - ```
-    y = h*x + n
-    y - to co będzie odebrane
-    x - to co wysłane
-    n - noise (ale szum biały)
-    h - odpowiedź medium (warunki propagacyjne)
-    ```
-
-  - **szum biały** - to szum jaki wprowadza sama aneta, nadajnik i odbiornik (a w nim detektory), nie zależy on od otoczenia, od medium, a od samych urządzeń. Po prostu UE i gnb ich detektory charakteryzują się jakimś szumem na antenie. 
-
-  - Ten szum biały mogę sobie estymować i na tej podstawie zrobić equalization
-
-  - ![](img/20.png)
-
-- **Singla modulation, DFT, sinc(x)**
-  - Każda nośna ma jakiś wzór:
-    Asin(2pinf0t) + A2cos(2pinf0t) i nadajnik wysyła sumę punkt po punkcie. I tak co symbol czyli okres sinusa T. 
-  - Potem z czasu idzie to na f czyli transformata Fouriera ez
-  - Tylko jedna nośna będzie na max amplitudę w punkcie środkowym, reszta wszystkie są zero tam. Dlatego nie ma interferencji między nośnymi - bo są ortogonalne.
-
 # Za tydzień kolos do slajd 19 punkty 1.2 i ten z sinc(x)
 
 # Fast review
@@ -814,3 +788,226 @@ QPSK
 ## PRACH
 
 Gdzie jest mój beam
+
+# Kolos2 się wydarzył
+
+Jakie były pytania?
+
+- Opisz kanał PBCH
+- Wymień functionalties MAC
+
+Trzeba pytać Kuba Kitka Polska o 3-cie i weryfikacje
+
+## OFDM
+
+- **Multi-path propagation** - odbicia przeszkadzają bo w nadajniku robi się **intersymbol interference**. Dlatego robi się tzw. **cyclic prefix**. Czyli symbol nie trwa `T`, a `T+T'`, nieco dłużej, tak aby zdążył zaistnieć na tyle, że nadajnik go uzna za symbol do odebrania. Wartość `T'` w obszarach gdzie jest dużo odbijania się (np. miasto) powinna być większa, a tam gdzie nie trzeba (pole, łąka) mniejsza. Niestety w LTE to tylko jedna wartość, a w 5G dwie.
+
+- **Channel frequency selectivity**
+
+  - ```
+    y = h*x + n
+    y - to co będzie odebrane
+    x - to co wysłane
+    n - noise (ale szum biały)
+    h - odpowiedź medium (warunki propagacyjne)
+    ```
+
+  - **szum biały** - to szum jaki wprowadza sama aneta, nadajnik i odbiornik (a w nim detektory), nie zależy on od otoczenia, od medium, a od samych urządzeń. Po prostu UE i gnb ich detektory charakteryzują się jakimś szumem na antenie. 
+
+  - Ten szum biały mogę sobie estymować i na tej podstawie zrobić equalization
+
+  - ![](img/20.png)
+
+- **Signal modulation, DFT, sinc(x)**
+
+  - Każda nośna ma jakiś wzór:
+    Asin(2pinf0t) + A2cos(2pinf0t) i nadajnik wysyła sumę punkt po punkcie. I tak co symbol czyli okres sinusa T. 
+  - Potem z czasu idzie to na f czyli transformata Fouriera ez
+  - Tylko jedna nośna będzie na max amplitudę w punkcie środkowym, reszta wszystkie są zero tam. Dlatego nie ma interferencji między nośnymi - bo są ortogonalne.
+
+- **Doppler shift creates channel incoherency -> coherence time* limits the inter-arrival samples of channel estimation**
+  - *ang. incoherent* - (physics) (of waves) having no definite or stable phase relationship.
+  - *ang. coherent* - (noun) the quality of being logical and consistent. (przymotnik) konsekwentny 
+  - Efekt Dopplera
+  - *https://en.wikipedia.org/wiki/Coherence_time - For an electromagnetic wave, the **coherence time** is the time over which a propagating wave may be considered coherent, meaning that its phase is, on average, predictable. In long-distance transmission systems, the coherence time may be reduced by propagation factors such as dispersion, scattering, and diffraction. Czyli czas jaki możemy uznać, że lecąca fala jest spójna w fazie, że lecąca fala nie zmieniła nic swojej fazy, że faza jest taka jak w nadajniku
+- **Peak to Average Power Ratio (PAPR) --> scrambling**
+  - Znowu chodzi o voltage, stosujemy scrambling (szamotanina - czyli zamiast stały sygnał to wysyłamy poszamotany)
+- **sensitive to phase noise and to frequency and time deviation -> synchronization (reference signals and synchronization channels)**
+  - *ang. deviation* - the action of departing from an established course or accepted standard ; odchylenie
+  - Czyli podczas transmisji między Tx a Rx są odchylenia w czasie i freq dlatego więc stosujemy synchronizacje poprzez reference signals i dedykowane sygnały synchronizacyjne
+
+Tu Jordi też zaznaczył iż OFDM nie jest nic analogowe, wszystko idzie DFT, a jak wiemy DFT to suma szeregu o nieskończonej liczbie elementów, a przecież nie da się wytworzyć nieskończoności w skończonym czasie, więc ta transformata nigdy nie jest na 100% idealna.
+
+## Physical layer
+
+> Nokia głównie zarabia z patentów - wymyślą coś, potem żeby inne firmy mogły tego używać, to muszą im płacić. Dlatego Nokii Open-RAN aż tak bardzo nie wadzi. Ericsson z kolei już mu Open-RAN przeszkadza, więc udaje, że tam jest ale nic się nie udziela i nie zagania tego do przodu.
+
+- **TDD vs FDD**
+
+  - Time Division vs Frequency Division Duplexing
+  - TDD is a method where both the transmitter and receiver use the same frequency band but transmit and receive traffic at different times.
+  - FDD is a full-duplex method that uses two different frequencies for transmit and receive operations.
+  - Comparison
+    - FDD się używa się na małe f 
+      - Wszystkie kraje EU zdecydowały, że na 3.4-3.8 będzie TDD
+      - Na 700 i poniżej FDD
+    - TDD jest prostsze a FDD jest trudne bo anteny nie muszą słuchać i nadawać w tym samym czasie
+    - TDD ma opóźnienie większe.
+    - TDD jest łatwiej zmieniać proporcje UPlink i downlink np z up600dl800 na up700dl100
+      
+
+- **Flexible-OFDM:      flexible symbol duration (sub-carrier spacing) and CyclicPrefix duration per each subband** 
+
+  - W 4G szerokość sub-carrier jest taki sam (15kHz), a w 5G jest aż 5 możliwości
+
+  - Skąd taki wybór? Bo 5G jest service-centric nie tylko eMBB jak 4G. I np. takie URLLC potrzebuje szerokiego pasma, dzięki któremu będą małe latency. Przy większym kanale, też efekt Dopplera, aż tak nie doskwiera.
+
+  - Dlatego w 5G jest 5 subcarrier spacing: 15, 30, 60, 120, 240 kHz
+
+    - 120 i 240 jest tylko dla pasma 26GHz (URLLC)
+
+  - Bandwidth Part: UE specific allocation (UL/DL). Bandwidth Parts are adaptable to UE
+    features and UE communication state
+
+    - UE i gnodeb dogadują się na jakich spacingu będą gadać (jakie bandwidth parts supportują)
+      - Po co to? Bo np. urządzenia IoT wspierają najczęściej tylko 15
+    - Podczas sesji można zmieniać bandwidth parts
+
+  - <img src="img/21.png" style="zoom:50%;" />
+
+  - Krzysiu Sadura dostał zadanie od Jordiego, żeby policzyć jaki jest Bitrate, gdy mamy dostępne pasmo 100MHz dla jednego UE.
+
+    - 100MHz to reasonable szerokość, UKE rozda np. operatorom po 80MHz, 80MHz też będzie na NPN'y
+
+    - Krzysiu jako, że jest skromny wybrał, że sub-carrier spacing to będzie 30kHz.
+
+    - ![](img/22.png)
+
+    - Pytanie teraz ile symboli zmieści się w jednej milisekundzie?
+
+    - Trzeba zajrzeć do tabelki dla Subcarrier spacing 30, czas trwania symbolu to 33.3μs, ale trzeba do tego doliczyć, że między symbolami jest trawający 2.3μs CyclicPrefix, tak więc łącznie mamy 35.6μs. 1ms=1000μs, robimy dzielenie i nam wychodzi 28.
+
+    - ![](img/23.png)
+
+    - Dobra, no to teraz pytanie ile jest bitów na jednym symbolu? To już zależy od modulacji, my zakładamy maxowy przypadek i że są super warunki propagacji, więc bierzemy 256QAM ==> 8 bitów na jeden symbol. Z tym, że musimy pomnożyć to przez *wspólczynnik kodowania*, no bo nie wszystko to są dane do wysłania przez warstwe fizyczną, ale też CRC itp.  Jordi ma taką tabelkę:
+
+      - <img src="img/24.jpg" style="zoom:50%;" />
+      - I z niej widzimy, że na 1024 bity przypada 948 bitow danych, reszta to CRC, FEC itp.'
+
+    - Okej no to policzmy jaki jest bitrate na jednej nośnej (sub-carrier) podczas jednej milisekundu przy modulacji 256QAM
+
+      - ```
+        Br = 28[symboli/milisekundę] * 8[bitów/symbol] * 948/1024[bitów danych/bitów łącznie] = 207.375[bitów/milisekundę]
+        ```
+    
+    - To jest dla jednego sub-carrier, a my liczymy max przypadek, że UE jest sam w komórce.
+    
+      - Ile zmieści się 30kHz sub-carrier w 100MHz kanale? Odp: 3,333.3333
+    
+    - I to było dla jednej milisekundy, więc znormujmy to do sekundy
+    
+    - Wychodzi 691,250,000 czyli `691.25 Mbit/s`
+    
+    - Ale to na poziomie warstwy PHY, a czyste dane w tym (np. zapytanie HTTP) to 84%
+    
+    - Czyli wychodzi `580,65 Mbit/s`
+    
+    - Stosując MIMO4x4 ten wynik możemy polepszyć do`2.322Gbit/s`
+
+**Resource block** tak nazywa się 12 przenośnych dla anteny nie ma nic innego niż resource block i to jest jej jednostka. Bandwidth ma np. 10 RB 
+
+Tak wygląda ramka dla Subcarrier Spacing 60 i 240 kHz
+
+![](img/24.png)
+
+Najmniejsze co jest to jest symbol, symbol w zależności od modulacji koduje ileś bitów (np. 64QAM koduje 6bitów).
+
+W SCS (Sub-Carrier Spacing)=60kHz, symbola trwa 16.7µs, a w SCS=240KHz, symbol trwa 4.17µs, symbole wkładane są w sloty. Sloty w subframe'y, a subframe w radio frame. Radio frame trwa aż 10ms i jest największą strukturą. Jordi nie tłumaczył skąd te podziały itp. więc luz.
+
+### Beamforming
+
+MIMO (Multiple Input Multiple Output) walczy z multipath-propagation, czyli po to ma wiele odbiorników, żeby odebrać wiele poodbijanych sygnałów i poskładać je do kupy, same z outputem.
+
+Massive MIMO, to marketingowa nazwa na to, że tych anten jest naprawdę dużo (Massive), czyli AŻ 32, 64, 128, 254, 512 :astonished:
+
+**Beamforming** to rozszerzenie do MIMO, coś innego niż MIMO, uzbrojenie MIMO w kolejne narzędzie, ale to już inne zjawisko. Beamforming to celowanie w UE mocą sygnału.
+
+> **Deep edge** - sam kraniec zasięgu anteny
+
+Beamforming fakty:
+
+- używany na dużych f (głównie uzywany w paśmie 26GHz, na 3.4-3.8 już mniej, a na 700MHz to już prawie wcale, bo tam przecież nie ma na deep edge nawet problemów)
+- polepszenie sygnał na deep edge
+- dużo mniejsze zużycie energii w antenie
+  - no bo nie jest dookoła wysyłane tylko w jedno konkretne miejsce, policz całke objętości byku
+- czas koherencji (czas efektu Dopplera) większą atenuacja kiedy są obiekty po drodze i mamy więcej problemy z f 
+- Z tymi beamami to nie jest tak że one gonią za userem. Antena ma Beam w jakimś kierunku i tam przełącza UE.  
+  - recovery jak ja wychodzę i tracę beama to nowy ma być (requirement mówi że tylko 0ms ma być ten czas) czyli dwa beamy naraz są nadawane
+  - Ile antena ma beamów w danej chwili czasowej max?
+    - 26GHz --> 64
+    - C-band (3.4-3.8) --> 8 dla SCS=15,30,60
+    - 700MHz ---> 4
+- Beamforming może być cyfrowy, analogowy lub hybrydowy
+
+### 5G Mobility
+
+Są trzy rodzaje:
+
+- Beam Mobility - w obrębie beama --> w obrębie komórki/anteny
+- Intra-RAT Mobility - między komórkami ale still w 5G
+- Inter-RAT Mobility - między 5G a 4G/3G
+
+> na handover (przepięcie z komórki na komórkę) są dwa powody, albo UE się rusza, albo antena robi load balancing
+
+#### Intra-RAT and Inter-RAT
+
+> Przypomnijmy stany RRC:
+>
+> idle - nie ma UE w sieci
+>
+> inactive - UE jest w sieci ale brak sesji
+>
+> connected - UE jest w sieci i jest sesja
+
+W stanach **IDLE** i **INACTIVE** mamy tzw. UE-trigerred mobility - czyli UE inicjuje. UE ma info do tego dzięki SIB2
+
+W stanie **CONNECTED** z racji, że musi być continuity na sesji. to antena każe UE robić pomiary non-stop i z racji że zna ona całą sięć, to antena decyduje o handover'ze. Ale nie zawsze musi być w to involved 5GC (Core) --> jak gNodeB mają ten sam UPF, to nie trzeba core wystarczy Xn. Handover ma 3 fazy:
+
+- preparation (UE measures serving and neighbour gNodeB)
+- execution (przepinanie, dwie anteny naraz wysyłają do UE)
+- completion (data forwarding, czyli zanotowanie przepięcia wyżej)
+
+Note: UE capabilities of different RAT are provided in the mobility command
+
+> Kreseczki są na podstawie tego co mierzy UE sib2, i tam nie ma rozróżnienia na sygnał i szum jest tylko moc, więc czasem może być że masz dwie kreseczki a się nie da gadać bo to sam szum little
+>
+> To się nazywa pomiary aktywne i pasywne pasywne robi UE w idle i inactive no bo po co aktywne nie jest tak groźne bo dane nie są wysyłane a jak jest rrc connected to robi aktywne czyli SNR 
+
+#### Beam Mobility
+
+W całości jest handlowany przez warstwy od PHY do RLC max, core nie jest involved
+
+> Skopiuje slajd i dam komy zanotowane podczas wykładu, bo mi się nie chce więcej :tired_face: :cold_sweat: :thermometer:
+
+![](img/25.png)
+
+> W jednym momencie nadaje antena tylko jeden beam przez 5ms potem zmienia na kolejny. Co każdy subframe trzeba robić wszystkie beamy 
+> 25
+> Ul i DL correspondence czyli że UL i DL jest ten sam Beam 
+> Dla beam recovery istnieje oddzielna częstotliwość żeby zachować ciągłość 
+
+![](img/26.png)
+
+> 26
+> Między UE i antena całą transmisja jest szyfrowana kluczami.
+> Kiedy zmieniam antenę to muszę zmieniać klucze ( bo wynikają Kgnb). 
+
+# Core
+
+> Ogólnie w radio jest jeden chuj jak LTE oprócz beamforming. Ofdm jest ten sam 
+>
+> W telco softwaryzacja jest nowa, w IT już jest dawno
+>
+> Dla bezpieczeństwa jest katastrofa, jak jest problem to nie wiadomo czy to problem chmury Amazona, kibernetesa, vmware czy nokii softu, a wcześniej jak cała szafa była od vendora, no to ten
+>
+> User plane nie zmieniamy nic od LTE, a w core można się bawić 
