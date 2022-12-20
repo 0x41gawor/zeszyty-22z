@@ -1116,8 +1116,10 @@ To już było przed pierszym kolo. Chodzi o to, że 5GC umie gadać z Radio Acce
 
 Dwie opcje są zaznaczone jako commercial
 
-- Option 3 - to co mamy teraz w Polsce, czyli RAN 5G, ale core jest LTE
+- Option 3 - to co mamy teraz w Polsce, czyli RAN 5G, ale core jest z 4G
+  - To nazywamy Non-Standalone, czyli nie stoi samo to 5G, jest wspierane przez elementy 4G
 - Option 2 - to do czego dążymy, 5G standalone, za jakiś czas robię przetarg na to w PLK XD
+  - standalone (czyli stoi sam) 5G stoi samo, czyli i RAN i Core jest 5G
 
 ## Service Based Architecture
 
@@ -1138,3 +1140,90 @@ Uwaga, to też jest tak, że jak np. AUSF dostanie od AMF prośbę o autentykacj
 To jest to samo co rysunek wcześniej (ten z szyną), tylko że....
 
 Ogólnie jak mamy to odzywanie się między NF'ami to nie jest przecież tak, ze każdy NF odzywa się do każdego NF'a istnieją jakieś podzbiory NF'ów do jakich odzywa się dany NF. I taki "reference point representation" właśnie pokazuje te podzbiory.
+
+### Zalety SBA
+
+- Functional Disaggregation
+  - Bardzo skomplikowany element z 4G jak MME, został zdekomponowany na dużo prostsze elementy.
+  - MME robił tak dużo, że jego funkcjonalności są tak naprawdę "spread" prawie po całym 5G, ale głownie rozeszło się to na AMF, SMF, SEAF
+- Client-Server: decopling NF-consumer and NF-producer
+  - NF-producer - NF który wystawia swój service
+  - NF-consumer - NF który korzysta z tego service
+- Light Service-based interfaces
+  - Te services, które udostępniają NF'y są udostępnianie na interfejsach, które nazywam **Service-based interfaces (SBI)**
+- SBI
+  - Te interfejsy są zrobione według REST
+    - REST to taki jakby framework do robienia api, udostępniania danych, taki jakby styl architektoniczny
+  - Używają protokołu HTTP 
+    - HTTP to protokół, który implementuje REST 
+    - Używane metody: GET, POST, PUT, DELETE
+  - Identyfikowane za pomocą URI - Uniform Resource Identifiers
+
+#### Protocol Stack
+
+![](img/33.png)
+
+NF to ta najwyższa warstwa logika tego co jest przesyłane. 
+
+A ta logika jest przesyłana w JSONACH.
+
+A te JSONY w HTTP
+
+#### Example
+
+Czyli np. jak wcześniej był przykład, że AMF pyta AUSF czy ten UE jest legit i można go zalogować do sieci.
+
+AUSF takowy service ma wystawiony na interfejsie o nazwie `Nausf_UEAuthentication`. 
+
+No więc teraz AMF tworzy pakiet HTTP a w niego wsadza Json taki:
+
+```json
+{
+    "imsi": 41243125132132,
+    "password": "legiatochuje"
+}
+```
+
+> Imsi to międzynarowy identyfikator karty SIM, takie id usera w sieci, coś jak nr tel ale dla maszyn a nie dla ludzi
+
+No i AMF wysyła tego JSON pakietem HTTP używając metody ` POST` na interfejs ` Nausf_UEAuthentication`. 
+
+To sobie leci tam przez sieć TCP/IP i blah blah blah, nie będe mówił przecież, uczymy się tego piąty rok i raczej nie krew w piach.
+
+I potem AUSF odpowiada:
+
+```json
+{
+    "isAuthenticated" = "true"
+}
+```
+
+Ofc. to jak wyląda ten JSON itp. to ja uprościłem i wymyśliłem. Oficjalna specyfikacja jest tutaj https://www.etsi.org/deliver/etsi_TS/129500_129599/129509/15.01.00_60/ts_129509v150100p.pdf 
+
+<img src="img/34.png" style="zoom:70%;" />
+
+Tu mamy ogólnie jak wygląda takie zapytanie. Nie tylko AMF może pytać AUSF o autentykacje (5G Core jest mega elastyczny), dlatego tak po lewej jest NF Service Consumer. POST to metoda HTTP /ue-authentications to kawałek URI, który mówi o jaki dokładnie service chodzi, a authenticationInfo to json z imsi czy coś. No i potem widać jak to dalej leci
+
+### NRF
+
+No dobra wszystko fajnie z tym core. Są NF'y one ze sobą eleganko współpracują i wszystko bangla.
+
+Ale zastanawiałeś się młody człowieku skąd NF-consumer ma 
+
+- po pierwsze wiedzieć że drugi NF (z którego może skorzystać) w ogóle istnieje
+- po drugie jaki jest jego adres IP (żeby wysłać do niego zapytanie to trzeba ten adres znać co nie)
+- po trzecie jakie zbiór service'ów ma ten NF
+
+No i tu z pomocą przychodzi NRF (**Network Repository Function**). Jest to jeden z NF'ów, którzy trzyma oraz dystrybuuje info o innych NF'ach. Niezłe jaja co.
+
+Czyli generalnie to jak włączasz nowy NF do core, to jedyne co mu konfigurujesz to adres IP NRF. Wtedy ten nowy NF odezwie się do NRF i od niego dostanie całe info o innych NF'ach, które jest potrzebne do współpracy z nimi (ich adresy IP i oferowane service'y). Oczywiście też ten nowy NF sam "zarejestruje" się w NRF, żeby inne NF'y mogły też się o nim dowiedzieć.
+
+Takie odkrywanie NF'ów za pomocą NRF nazywa się **NF Discovery**.
+
+Takie wpisywanie się do NRF jako nowy NF to **NF Registration**.
+
+Na dole slajd:
+
+![](img/35.png)
+
+O co chodzi z tym Communication? Mam o tym [oddzielny pliczek](SBA/5G Service-Based Architecture.md)
