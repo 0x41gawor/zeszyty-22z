@@ -1227,3 +1227,5 @@ Na dole slajd:
 ![](img/35.png)
 
 O co chodzi z tym Communication? Mam o tym [oddzielny pliczek](SBA/5G Service-Based Architecture.md)
+
+Link: https://github.com/0x41gawor/zeszyty-22z/blob/master/TESM/SBA/5G%20Service-Based%20Architecture.md
