@@ -850,10 +850,10 @@ Tu Jordi też zaznaczył iż OFDM nie jest nic analogowe, wszystko idzie DFT, a 
   - Comparison
     - FDD się używa się na małe f 
       - Wszystkie kraje EU zdecydowały, że na 3.4-3.8 będzie TDD
-      - Na 700 i poniżej FDD
-    - TDD jest prostsze a FDD jest trudne bo anteny nie muszą słuchać i nadawać w tym samym czasie
+      - Na 700MHz i poniżej FDD
+    - TDD jest prostsze a FDD jest trudne bo anteny muszą słuchać i nadawać w tym samym czasie
     - TDD ma opóźnienie większe.
-    - TDD jest łatwiej zmieniać proporcje UPlink i downlink np z up600dl800 na up700dl100
+    - TDD jest łatwiej zmieniać proporcje UPlink i downlink np z up600dl800 na up700dl700
       
 
 - **Flexible-OFDM:      flexible symbol duration (sub-carrier spacing) and CyclicPrefix duration per each subband** 
@@ -862,14 +862,14 @@ Tu Jordi też zaznaczył iż OFDM nie jest nic analogowe, wszystko idzie DFT, a 
 
   - Skąd taki wybór? Bo 5G jest service-centric nie tylko eMBB jak 4G. I np. takie URLLC potrzebuje szerokiego pasma, dzięki któremu będą małe latency. Przy większym kanale, też efekt Dopplera, aż tak nie doskwiera.
 
-  - Dlatego w 5G jest 5 subcarrier spacing: 15, 30, 60, 120, 240 kHz
+  - Dlatego w 5G jest 5 subcarrier spacing (**SCS**): 15, 30, 60, 120, 240 kHz
 
     - 120 i 240 jest tylko dla pasma 26GHz (URLLC)
 
   - Bandwidth Part: UE specific allocation (UL/DL). Bandwidth Parts are adaptable to UE
     features and UE communication state
 
-    - UE i gnodeb dogadują się na jakich spacingu będą gadać (jakie bandwidth parts supportują)
+    - UE i gNodeBdogadują się na jakim SCS będą gadać (jakie bandwidth parts supportują)
       - Po co to? Bo np. urządzenia IoT wspierają najczęściej tylko 15
     - Podczas sesji można zmieniać bandwidth parts
 
@@ -910,9 +910,9 @@ Tu Jordi też zaznaczył iż OFDM nie jest nic analogowe, wszystko idzie DFT, a 
     
     - Ale to na poziomie warstwy PHY, a czyste dane w tym (np. zapytanie HTTP) to 84%
     
-    - Czyli wychodzi `580,65 Mbit/s`
+    - Czyli wychodzi `580.65 Mbit/s`
     
-    - Stosując MIMO4x4 ten wynik możemy polepszyć do`2.322Gbit/s`
+    - Stosując MIMO4x4 ten wynik możemy polepszyć do`2.322 Gbit/s`
 
 **Resource block** tak nazywa się 12 przenośnych dla anteny nie ma nic innego niż resource block i to jest jej jednostka. Bandwidth ma np. 10 RB 
 
@@ -940,7 +940,7 @@ Beamforming fakty:
 - polepszenie sygnał na deep edge
 - dużo mniejsze zużycie energii w antenie
   - no bo nie jest dookoła wysyłane tylko w jedno konkretne miejsce, policz całke objętości byku
-- czas koherencji (czas efektu Dopplera) większą atenuacja kiedy są obiekty po drodze i mamy więcej problemy z f 
+- czas koherencji (czas efektu Dopplera) większa atenuacja kiedy są obiekty po drodze i mamy więcej problemy z f 
 - Z tymi beamami to nie jest tak że one gonią za userem. Antena ma Beam w jakimś kierunku i tam przełącza UE.  
   - recovery jak ja wychodzę i tracę beama to nowy ma być (requirement mówi że tylko 0ms ma być ten czas) czyli dwa beamy naraz są nadawane
   - Ile antena ma beamów w danej chwili czasowej max?
@@ -989,18 +989,37 @@ W całości jest handlowany przez warstwy od PHY do RLC max, core nie jest invol
 
 > Skopiuje slajd i dam komy zanotowane podczas wykładu, bo mi się nie chce więcej :tired_face: :cold_sweat: :thermometer:
 
-![](img/25.png)
+**Beam Correspondence**
 
-> W jednym momencie nadaje antena tylko jeden beam przez 5ms potem zmienia na kolejny. Co każdy subframe trzeba robić wszystkie beamy 
-> 25
-> Ul i DL correspondence czyli że UL i DL jest ten sam Beam 
-> Dla beam recovery istnieje oddzielna częstotliwość żeby zachować ciągłość 
+Jak jest Correspondence to ten sam beam jest używany do tranismicji UL i DL
+
+![](img/27.png)
+
+W jednym momencie nadaje antena tylko jeden beam przez 5ms potem zmienia na kolejny. Co każdy subframe trzeba robić wszystkie beamy 
+
+**Beam mobility and Power measurements**
+
+- Mamy tutaj dwie strony UE i network
+- Power measurements mogą mieć dwa tryby:
+  - Iddle mode - w celu  cell (re)selection, synchro of Signal in broadcast messages
+  - Connected mode - używany w celu handover, channel state information in reference signals
+    - Jak się dzieją?
+      - albo UE generuje raporty pomiarowe periodycznie (okresowo) albo triggerują je zdarzenia (wejście w komórkę sąsiędnią)
+    - Raporty (co mają mierzyć (object to measure) i co jak mają wyglądać) są opisywane przez network
+- Network adjusts physical control and user channels for beam adaptation
+- Jest wymaganie, że interruption time spowodowany przełączeniem beamów ma wynosić 0ms, stąd są dedykowane resources na random access na kanale PRACH
+
+
+
+#### Mobility & Security
+
+Jak wiadomo cała transmisja między UE a gNodeB jest szyfrowana 
+
+>  przynajmniej w teorii xd, bo tak naprawdę to operatorzy mają to w piździe, więc nie cała jest szyfrowana)
+
+Szyfrowanie wiadomo odbywa się za pomocą jakiegoś klucza, więc jak UE i antena mają jakiś klucz którym szyfrują, to jak UE zmieni antenę, to ten klucz już musi mieć taki jaki pasuje w nowej antenie. Na dole slajd, który nic nie wyjaśnia.
 
 ![](img/26.png)
-
-> 26
-> Między UE i antena całą transmisja jest szyfrowana kluczami.
-> Kiedy zmieniam antenę to muszę zmieniać klucze ( bo wynikają Kgnb). 
 
 # Core
 
@@ -1011,3 +1030,111 @@ W całości jest handlowany przez warstwy od PHY do RLC max, core nie jest invol
 > Dla bezpieczeństwa jest katastrofa, jak jest problem to nie wiadomo czy to problem chmury Amazona, kibernetesa, vmware czy nokii softu, a wcześniej jak cała szafa była od vendora, no to ten
 >
 > User plane nie zmieniamy nic od LTE, a w core można się bawić 
+
+Między designowaniem EPC (Core 4G) a 5GC (Core 5G) w IT bardzo dużo się zadziało wirtualizacja wprowadziła dwa koncepty SDN i NFV, tak właściwie to 5G to jest dopasowanie sieci mobilnych pod te nowe wynalazki - Jordi po chwili opisu jakie zmiany zaszły w IT powiedział:
+
+![](img/29.png)
+
+No dobra, ale co konkretnie daje nam wirtualizacja? Opisuje to ten slajd
+
+Plusy:
+
+- elastyczność
+- koszt
+- time to market 
+
+Wady:
+
+- największa wada writualizacji to wydajność
+- druga poważna wada to bezpieczeństwo (przypomniaj sobie CIA Triad)
+  - Jak padnie chmura, która niezależy od nas, to padną też nasze serwisy
+
+## 5G Core - drive factors
+
+Czyli jakie nowinki technologiczne przyczyniły się do developmentu tego core.
+
+### Containers and VMs
+
+> Kto opisał wgl tę wirtualizację?
+>
+> ETSI NFV, jest też OPNFV, ale świat poszedł w stronę ETSI
+>
+> Ogólnie ETSI z całego 3GPP jest najmocniejsze
+
+![](img/28.png)
+
+Na rysunku mamy ewolucje z maszyn wirtualnych na kontenery. Jakie są wady i zalety kontenerów?
+
+**Wady**
+
+- są młodsze
+  - zawsze w IT jest tak, że to co młodsze to gorsze, bo nie wygooglujesz, bo nie wiadomo jak działa z czymś tam, często na dany problem trafiasz jako pierwszy z tego powodu np. ja trzymam się z dala od Windows 11
+
+**Zalety**
+
+- mniejsze latency na nich jest, apka bezpośrednio korzysta z zasobów systemu, nie ma layeringu jak w VM
+- resilience (odporność)
+- portability - kontenery można ez przenosić sobie
+- short-lived services - jak potrzebuje jakiegoś serwisuy nie cały czas tylko na kilka minut, to z kontenerami jest to możliwe, z VM już gorzej
+- problem split - duży problem rozbijam sobie na mniejsze kontenerki
+- reusability - mogę jeden serwis w wielu miejscach używać. Np UDM jest używany przez AMF i PCF
+
+### Software jako microservices
+
+Microservices : software development by reducing the software to small independent software services with well defined APIs
+
+- Scalability - jak jest mały ruch w sieci to płace za małe zużycie zasobów, jak duży to skaluje to co mam i dopiero płace za więcej
+- Easy development - każdy programista powie, że development jest prostszy przy microserwisach (gorzej z integracją hehehe)
+- Network service is a set of microservices 
+- Microservice instances may be easily added removed
+- Each microservice with own life cycle
+
+### Network Automation
+
+Network automation
+
+- Based on SON ( Self Organising Network): self configuration , optimization , & healing
+  - Czyli taki Kubernets
+- Makes use of AI/ML
+  - Czyli takie Nephio
+
+### Cloud Native
+
+Chmury mają dużo wad ale overall wychodzą na plus.
+
+- Infrastructure agnostic
+- Software decomposition and life cycle --> microservices
+- Resilience : Independence of SW components and isolation
+- Orchestration : State and data optimization
+- Automation ( e.g ., Kubernetes based Container as a Service)
+
+## LTE interctonnection
+
+![](img/32.png)
+
+To już było przed pierszym kolo. Chodzi o to, że 5GC umie gadać z Radio Access Network z 4G.
+
+Dwie opcje są zaznaczone jako commercial
+
+- Option 3 - to co mamy teraz w Polsce, czyli RAN 5G, ale core jest LTE
+- Option 2 - to do czego dążymy, 5G standalone, za jakiś czas robię przetarg na to w PLK XD
+
+## Service Based Architecture
+
+![](img/30.png)
+
+To co widać na obrazku to NF'y (**Network Function**). Nie trzeba się ich uczyć. Najważniejsze jest to, że są one na wspólnej szynie i każdy NF oferuje jakieś serwisy, z których inne NF'y mogą korzystać. 
+
+Przykładowo UE chce się zalogować do sieci, ten request dostanie AMF (tylko AMF i UPF mają połączenie do kogoś spoza core'a). AMF żeby wypełnić swoją misję czyli zarejestrowanie UE w sieci, a potem danie mu sesji danych musi użyć serwisów swoich kolegów, którzy specjalizują się w małych kroczkach, które w makro skali złożą się na to. Więc tak, po pierwsze to AMF musi zatentykować i zautoryzować UE. Odzywa się w tym celu do AUSF - AUthentication Server Function "Mordo, czy to UE (numer IMSI) to ja mogę wpuścić do sieci?". Zauważ, że w kodzie AMF cała logika związana z autentykacją to będzie wykonanie zapytania do AUSF i potem dostanięcie odpowiedzi od niego, a ten cały bałagan się za tym kryjący chowamy do AUSF. AUSF odpowie do AMF albo że tak, albo że nie, albo żeby UE podało jakieś dodatkowe rzeczy do uwierzytelnienia. Jak już AMF od AUSF wie, że UE może być zalogowane, to AMF teraz pyta PCF (Policy and Charging Function), czy to UE ma dostęp do sesji danych (czy płaci abonament itp.), więc wysyła zapytanie do PCF "mordo, czy to UE (numer IMSI), to może u nas korzystać z neta?". PCF mu odpowie tak lub nie, albo tak, ale tylko do 20 Mbit/s max, albo "tak, ale tylko YouTube" (są takie pakiety/taryfy dla klientów). No to jak już AMF wie, że to UE jest zautentykowane i że może korzystać z neta, to zleci do SMF (Session Management Function) zestawienie sesji danych. Wyśle do niego request "Daj temu UE sesje do netu na 20Mbit/s". SMF to wykona i odpowie "mordo, załatwione". 
+
+Czyli generalnie chodzi o to, że każdy NF ma "swoją brożkę", w czymś się specjalizuje i to wystawia na świat jako **services**, a inne NF'ymogą się do tych services zwrócić o pomoc w wypełnianiu swojego zadania. 
+
+Uwaga, to też jest tak, że jak np. AUSF dostanie od AMF prośbę o autentykację, to AUSF korzysta z serwisu UDM (Unified Data Management), żeby sprawdzić credentiale tego usera). A SMF jak dostanie prośbę o zestawienie sesji, to tak naprawdę wybiera odpowiedni UPF i tam zleca zestawienie tej sesji.
+
+> To podobnie jak preze firmy każe dyrektorowi sporządzić raport, który ma 5 rozdziałów. Dyrektor dostanie to zadanie ale tak naprawdę to poprosi 5 kierowników, każdego o jeden rozdział. Potem Ci kierownicy dadzą to swoim pracownikom do zrobienia itd.. Każdy dołoży tu swoje 5 groszy i w kupie siła.
+
+![](img/31.png)
+
+To jest to samo co rysunek wcześniej (ten z szyną), tylko że....
+
+Ogólnie jak mamy to odzywanie się między NF'ami to nie jest przecież tak, ze każdy NF odzywa się do każdego NF'a istnieją jakieś podzbiory NF'ów do jakich odzywa się dany NF. I taki "reference point representation" właśnie pokazuje te podzbiory.

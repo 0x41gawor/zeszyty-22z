@@ -306,7 +306,7 @@ Właściwości x:
 - ma path, która należy do demanda
 - ma ułamek volume demanda
 
-> Przkład
+> Przykład
 >
 > ```
 > hd = 8      // mamy demand `d` o volume 8
