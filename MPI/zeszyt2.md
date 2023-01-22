@@ -122,3 +122,29 @@ Zbiera statystki o węzłach i serwisach na nich uruchomionych
 
 # Orkiestracja
 
+Orkiestracja to proces, który uruchamia się w celu zarządzania cyklem życia usługi/aplikacji.
+
+Jest to proces realizowany w różnych skalach czasu. Onboard zdarza się relatywnie rzadko (raz na kilka dni), a Instantiate co kilka ms nawet.
+
+![](img2/4.png)
+
+Historyjka: Mamy jakieś Data Center, które oferuje mnóstwo resources (CPU, RAM itd.). Klienci biznesowi jak Ceneo.pl, Kurnik.pl zamiast samemu utrzymywać serwery ze swoimi aplikacjami to mogą dogadać się z Data Center. Załóżmy, że jest jakieś Data Center w Poznaniu należące do firmy Equinix. Kurkik.pl ma dość hostowania swoich gierek na własnych serwerach i idzie do Equinix i mówi "mordy weźcie mi no hostujcie moje apki". Equinix pierwsze o co pyta to "Daj mi w takim razie byku (kurko hehe) container-images tych swoich apek". No i w momencie, gdy Kurnik przekaże do Equinix swoje obrazy apek, a Equinix sobie je wgra w Kubernetes to to jest **onboarding**. Potem Equinix powie swojemu K8s ile tego typu apek potrzeba, zdefiniuje wymagania na zasoby dla jednej instancji z tego obrazu i od tej pory K8s będzie mógł je instancjonować - to się nazywa **Activate**. Jak już obraz jest aktywny, to gdy przyjdzie żądanie użytkowników na daną usługę to K8s postawi Pod a w nim uruchomi kontener z obrazu danej usługi i to się nazywa **Instantiate**. Czyli np. ktoś (Michał z Kacprem) chce zagrać w chinćzyka, to wtedy jak na tej stronie https://www.kurnik.pl kliknie "CHIŃCZYK (476)" to w tym momencie K8s dostanie że jest request na gierke w chinola i zinstancjonuje kontener na ten cel. Ten kontener będzie hostował grę jakiś tam dwóch osób. Potem chcielibyśmy, żeby jak już kontener żyje to było wszystko z nim ok i żeby zachować ciągłośc usługi (czyli żeby gierka w chinola nagle się nie wyjebała). Od tego jest **Monitor**, czyli paczymy czy jest wszystko ok. Jak Michał i Kacper nagle zacznie klikać jak dziecko z ADHD i będzie potrzeba więcej zasobów na ten kontener (lub wgl drugi kontener) to zadzieje się **Scale in/out**. Jak kontener się popsuje to będzie **Heal**. **Update ** to nie wiem o chuj chodzi. Jak Kaceprek i Michałem skończą partię i nie bedą chcieli kolejnej w chińczyka, to Orkiestrator zrobi na tym kontenerze **Terminate**. Jak Kurnik.pl zdecyduje się na zupełne wycofanie ze swojej oferty Chińczyka (bo to debilna gra), to Poprosi o **Deactivate**, czyli żeby cofnąć Activate. **Change** jakby chcieli podmienić obraz, czyli naprzykład dać inne zasady gry czy coś. Na koniec Equinix ususwa obraz - **Remove**.
+
+## Funkcje orkiestratora
+
+Główne:
+
+- **Service/application instantiation /termination** – obsługa żądań użytkowników
+
+- **Service/application onboarding/removing** - obsługa żądań dostawcy usług
+- **Activate/de-activate**
+
+Wspierające:
+
+- Monitorowanie stanu usług (czy każda usługa ma odpalone tyle kontenerów, ze pokrywają one zainteresowanie)
+- Skalowanie wydajności usług (jeśli nie to proszę odpalić kolejne pody)
+- Obsługa mobilności aplikacji (czyli zachowanie ciągłości obsługi mimo, ze kontener przelazł z jednego węzła na nowy)
+- Automatyczna aktualizacja oprogramowania (czyli jak producent kontenera chińczyka wydaje nową wersję, to niech orkiestrator zrobi update)
+- Zarządzanie zasobami wykorzystaniem (CPU, GPU, RAM, Sieć, energia)
+- Zapewnienie niezawodności i obsługa awarii (Heal)
+
