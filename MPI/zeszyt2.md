@@ -1,7 +1,7 @@
 - [x] Na czym polega NFV, architektura i główne komponenty na przykładzie ETSI MANO. Przyczyny czemu sieci ewoluują w tym kierunku.
-- [ ] Cel i zasada działania edge computing. Różnica między fog, edge oraz MEC. Architektura MEC i przykładowe zastosowania
+- [x] Cel i zasada działania edge computing. Różnica między fog, edge oraz MEC. Architektura MEC i przykładowe zastosowania
 - [ ] Jakie są i naczym polegają modele świadczenia usług wykorzystujących technikę chmur obliczeniowych. Kiedy ją stosujemy i dlaczego może być opłacalne. Omów jej ograniczenia i zagrożenia.
-- [ ] Czym jest orkiestracja. Podstawowe funkcje. Czym różni się od zarządzania. Czym różnią się funkcje orkiestracji w centrach danych od systemów obliczeń na brzegu sieci
+- [x] Czym jest orkiestracja. Podstawowe funkcje. Czym różni się od zarządzania. Czym różnią się funkcje orkiestracji w centrach danych od systemów obliczeń na brzegu sieci
 - [ ] Zadanie optymalizacyjne - MEC
 - [ ] Zadanie optymalizacyjne - CDN
 - [ ] Zadanie optymalizacyjne - VNF
@@ -128,7 +128,7 @@ Jest to proces realizowany w różnych skalach czasu. Onboard zdarza się relaty
 
 ![](img2/4.png)
 
-Historyjka: Mamy jakieś Data Center, które oferuje mnóstwo resources (CPU, RAM itd.). Klienci biznesowi jak Ceneo.pl, Kurnik.pl zamiast samemu utrzymywać serwery ze swoimi aplikacjami to mogą dogadać się z Data Center. Załóżmy, że jest jakieś Data Center w Poznaniu należące do firmy Equinix. Kurkik.pl ma dość hostowania swoich gierek na własnych serwerach i idzie do Equinix i mówi "mordy weźcie mi no hostujcie moje apki". Equinix pierwsze o co pyta to "Daj mi w takim razie byku (kurko hehe) container-images tych swoich apek". No i w momencie, gdy Kurnik przekaże do Equinix swoje obrazy apek, a Equinix sobie je wgra w Kubernetes to to jest **onboarding**. Potem Equinix powie swojemu K8s ile tego typu apek potrzeba, zdefiniuje wymagania na zasoby dla jednej instancji z tego obrazu i od tej pory K8s będzie mógł je instancjonować - to się nazywa **Activate**. Jak już obraz jest aktywny, to gdy przyjdzie żądanie użytkowników na daną usługę to K8s postawi Pod a w nim uruchomi kontener z obrazu danej usługi i to się nazywa **Instantiate**. Czyli np. ktoś (Michał z Kacprem) chce zagrać w chinćzyka, to wtedy jak na tej stronie https://www.kurnik.pl kliknie "CHIŃCZYK (476)" to w tym momencie K8s dostanie że jest request na gierke w chinola i zinstancjonuje kontener na ten cel. Ten kontener będzie hostował grę jakiś tam dwóch osób. Potem chcielibyśmy, żeby jak już kontener żyje to było wszystko z nim ok i żeby zachować ciągłośc usługi (czyli żeby gierka w chinola nagle się nie wyjebała). Od tego jest **Monitor**, czyli paczymy czy jest wszystko ok. Jak Michał i Kacper nagle zacznie klikać jak dziecko z ADHD i będzie potrzeba więcej zasobów na ten kontener (lub wgl drugi kontener) to zadzieje się **Scale in/out**. Jak kontener się popsuje to będzie **Heal**. **Update ** to nie wiem o chuj chodzi. Jak Kaceprek i Michałem skończą partię i nie bedą chcieli kolejnej w chińczyka, to Orkiestrator zrobi na tym kontenerze **Terminate**. Jak Kurnik.pl zdecyduje się na zupełne wycofanie ze swojej oferty Chińczyka (bo to debilna gra), to Poprosi o **Deactivate**, czyli żeby cofnąć Activate. **Change** jakby chcieli podmienić obraz, czyli naprzykład dać inne zasady gry czy coś. Na koniec Equinix ususwa obraz - **Remove**.
+Historyjka: Mamy jakieś Data Center, które oferuje mnóstwo resources (CPU, RAM itd.). Klienci biznesowi jak Ceneo.pl, Kurnik.pl zamiast samemu utrzymywać serwery ze swoimi aplikacjami to mogą dogadać się z Data Center. Załóżmy, że jest jakieś Data Center w Poznaniu należące do firmy Equinix. Kurkik.pl ma dość hostowania swoich gierek na własnych serwerach i idzie do Equinix i mówi "mordy weźcie mi no hostujcie moje apki". Equinix pierwsze o co pyta to "Daj mi w takim razie byku (kurko hehe) container-images tych swoich apek". No i w momencie, gdy Kurnik przekaże do Equinix swoje obrazy apek, a Equinix sobie je wgra w Kubernetes (a dokładnie to w jakieś obrazowe repo) to to jest **onboarding**. Potem Equinix powie swojemu K8s ile tego typu apek potrzeba, zdefiniuje wymagania na zasoby dla jednej instancji z tego obrazu i od tej pory K8s będzie mógł je instancjonować - to się nazywa **Activate**. Jak już obraz jest aktywny, to gdy przyjdzie żądanie użytkowników na daną usługę to K8s postawi Pod a w nim uruchomi kontener z obrazu danej usługi i to się nazywa **Instantiate**. Czyli np. ktoś (Michał z Kacprem) chce zagrać w chinćzyka, to wtedy jak na tej stronie https://www.kurnik.pl kliknie "CHIŃCZYK (476)" to w tym momencie K8s dostanie że jest request na gierke w chinola i zinstancjonuje kontener na ten cel. Ten kontener będzie hostował grę jakiś tam dwóch osób. Potem chcielibyśmy, żeby jak już kontener żyje to było wszystko z nim ok i żeby zachować ciągłośc usługi (czyli żeby gierka w chinola nagle się nie wyjebała). Od tego jest **Monitor**, czyli paczymy czy jest wszystko ok. Jak Michał i Kacper nagle zacznie klikać jak dziecko z ADHD i będzie potrzeba więcej zasobów na ten kontener (lub wgl drugi kontener) to zadzieje się **Scale in/out**. Jak kontener się popsuje to będzie **Heal**. **Update ** to nie wiem o chuj chodzi. Jak Kaceprek i Michałem skończą partię i nie bedą chcieli kolejnej w chińczyka, to Orkiestrator zrobi na tym kontenerze **Terminate**. Jak Kurnik.pl zdecyduje się na zupełne wycofanie ze swojej oferty Chińczyka (bo to debilna gra), to Poprosi o **Deactivate**, czyli żeby cofnąć Activate. **Change** jakby chcieli podmienić obraz, czyli naprzykład dać inne zasady gry czy coś. Na koniec Equinix ususwa obraz - **Remove**.
 
 ## Funkcje orkiestratora
 
@@ -148,3 +148,85 @@ Wspierające:
 - Zarządzanie zasobami wykorzystaniem (CPU, GPU, RAM, Sieć, energia)
 - Zapewnienie niezawodności i obsługa awarii (Heal)
 
+### Obługa żądań dostawcy usług
+
+Co potrzebujemy:
+
+- **Model zasobów data center**, 
+
+  - czy aplikacja może być udostępniona w przyszłości (czy są zasoby, czy starczy QoS, czy obraz jest zgdony z oprogramowaniem)
+  - Zasoby Serwerów/Węzłów
+
+- **Model aplikacji**
+
+  - Deskryptor aplikacji (zasoby + wymagania)
+  - Obrazy aplikacji
+
+- **Funkcje decyzyjne**
+
+  - Przyjęcie i umieszczenie/odrzucenie obrazu w repozytorium obrazów
+
+### Obsługa żądań użytkowników
+Co potrzebujemy:
+- **Model zasobów data center **
+  - Czy aplikacja może być teraz uruchomiona
+  - Topologa Węzłów
+  - Zasoby Węzłów
+  - Instancje aplikacji - stan (uruchomiona, w repozytorium, niedostępna)
+
+- **Model aplikacji**
+  - Deskryptor aplikacji (zasoby + wymagania)
+  - Obrazy aplikacji w repozytorium
+
+- **Funkcje decyzyjne**
+  - Przyjęcie (żadania na usługę) i umieszczenie/odrzucenie (instancji)
+
+- **Zasady przekierowania ruchu do aplikacji**
+
+## Architektura orkiestratora
+
+![](img2/5.png)
+
+https://www.linkedin.com/pulse/mec-101-primer-communications-service-providers-sandeep-sahu/
+
+https://www.symec.com.pl/pl/elementy-systemu-symec/architektura-systemu-symec/
+
+**LCM - LifeCycle Management, CFS - Customer Facing Service** - to stąd może przyjść żądanie zarówno od dostawcy jak i user'a
+
+**OSS/BSS** - Operations Support System / Business Support System - najpierw zweryfikujemy czy ten ktoś ma wykupione u nas usługi itp.
+
+**Moduł obsługi żądań** - Tu przychodzi żądanie. Najpierw sprawdzi on czy są zasoby wykonując zapytanie do **Model abstrakcyjny systemu** i na tej podstawie podejmie decyzje posiłkując się **Modułem decyzyjnym**. Gdy decyzja jest pozytywna  zwraca się on do **MEC Platform Manager** i **Vritual Infrastrcuture Manager** (czyli np. K8s), zeby zadziało się co trzeba (powstał odpowiednie pody).
+
+**Repozytorium SyMEC** - przechowuje obrazy aplikacji 
+
+## Proces orkiestracji K8s
+
+No dobra, zawrócił się do nas ten **Moduł obsługi żądań** co teraz robi K8s, żeby postawić poda, a dokładniej to co robi kube-scheduler, bo to on decyduje gdzie stawiać pody (i mówi, ale sam nie stawia).
+
+Robi o to:
+
+![](img2/6.png)
+
+### Wpływ na wybór węzła
+
+W jaki sposób my jako K8s Admin, możemy wpływać na wybór węzła?
+
+#### NodeSelector
+
+W pliku konfiguracyjnym pod, po prostu podajemy hostname
+
+![](img2/7.png)
+
+#### NodeAffinity
+
+Do węzłów możemy przypisywać jakieś *label'e*.
+
+A potem z nich korzystać w pliku konfiguracyjnym pod o tak:
+
+![](img2/8.png)
+
+#### Taints and tolerations
+
+![](img2/9.png)
+
+To jest ciekawy mechanizm. Wyobraźmy sobie, że node'y to ludzie, a pody to zwięrzęta (np. komar bo komar to jest zwierze). No i teraz żeby jakieś zwięrzęta na nas nie siadały to możemy popsikać się sprayem. Są różne spraye na komary, na muchy, na szerszenie i np. komar jest tolerant na spray na muchy ale na spray na komary już jest intolerant. Tak samo tutaj: node'om definiujemy jaki mają taint (jakim sprayerm ich psiknęliśmy), a potem jak tworzymy pod to mówimy mu na jakie tainty (spraye) jest on tolerant.
